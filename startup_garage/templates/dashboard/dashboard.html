@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Dashboard Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-white">
+                Welcome, {{ user.username }}! 👋
+            </h1>
+            {% if startup.name %}
+                <p class="text-xl text-gray-400 mt-2">{{ startup.name }}</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'dashboard:profile_update' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            Edit Profile
+        </a>
+    </div>
+
+    <!-- Stage Section -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-white">Startup Stage</h2>
+            <span class="px-4 py-1 rounded-full text-sm font-semibold
+                {% if startup.stage == 'idea' %}
+                    bg-blue-900 text-blue-200
+                {% elif startup.stage == 'mvp' %}
+                    bg-purple-900 text-purple-200
+                {% elif startup.stage == 'growth' %}
+                    bg-green-900 text-green-200
+                {% endif %}
+            ">
+                {{ startup.get_stage_display }}
+            </span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-800 rounded-full h-3">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300"
+                 style="width: {{ stage_progress }}%">
+            </div>
+        </div>
+        <p class="text-gray-400 text-sm mt-2">{{ stage_progress }}% to Growth</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Users KPI -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Active Users</p>
+                    <p class="text-3xl font-bold text-white mt-2">{{ startup.kpi_users }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2h12v-2a6 6 0 00-9-5.656M15 21h6"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue KPI -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-green-500 transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Revenue</p>
+                    <p class="text-3xl font-bold text-white mt-2">${{ startup.kpi_revenue }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Streak KPI -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-orange-500 transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm">Milestones (30d)</p>
+                    <p class="text-3xl font-bold text-white mt-2">{{ streak }}</p>
+                </div>
+                <div class="w-12 h-12 bg-orange-900 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Focus Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Today's Tasks -->
+        <div class="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-white mb-4">📋 Daily Focus</h3>
+
+            {% if top_tasks %}
+                <div class="space-y-3 mb-6">
+                    {% for task in top_tasks %}
+                        <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-750 transition">
+                            <input type="checkbox" class="mt-1 w-4 h-4 rounded">
+                            <div class="flex-1">
+                                <p class="text-white font-medium">{{ task.title }}</p>
+                                {% if task.due_date %}
+                                    <p class="text-gray-400 text-sm">Due: {{ task.due_date|date:"M d" }}</p>
+                                {% endif %}
+                            </div>
+                            <span class="px-2 py-1 text-xs rounded
+                                {% if task.priority == 'high' %}
+                                    bg-red-900 text-red-200
+                                {% elif task.priority == 'medium' %}
+                                    bg-yellow-900 text-yellow-200
+                                {% else %}
+                                    bg-gray-700 text-gray-300
+                                {% endif %}
+                            ">
+                                {{ task.get_priority_display }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-400 py-6 text-center">No tasks yet. Create one to get started!</p>
+            {% endif %}
+
+            <a href="{% url 'tasks:task-board' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                View All Tasks →
+            </a>
+        </div>
+
+        <!-- Tips & Mentor -->
+        <div class="space-y-6">
+            <!-- Stage Tip -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-white mb-3">💡 Focus Tip</h4>
+                <p class="text-gray-300">{{ stage_tip }}</p>
+            </div>
+
+            <!-- Mentor Tip -->
+            {% if mentor_tip %}
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 border-green-700">
+                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Mentor Session</h4>
+                    <p class="text-gray-300 font-medium">{{ mentor_tip.title }}</p>
+                    <p class="text-gray-400 text-sm mt-2">with <span class="text-blue-400">{{ mentor_tip.mentor }}</span></p>
+                    <p class="text-gray-400 text-sm">{{ mentor_tip.date|date:"M d" }}</p>
+                    <a href="{% url 'mentor:list' %}" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">
+                        View Mentors →
+                    </a>
+                </div>
+            {% else %}
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Get a Mentor</h4>
+                    <p class="text-gray-300 text-sm mb-4">Connect with experienced mentors to guide your journey.</p>
+                    <a href="{% url 'mentor:list' %}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm">
+                        Find Mentors →
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Task Status Overview -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-white mb-4">📊 Task Status</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-gray-800 rounded-lg text-center">
+                <p class="text-gray-400 text-sm">To Do</p>
+                <p class="text-2xl font-bold text-white mt-1">{{ tasks_by_status.todo|default:"0" }}</p>
+            </div>
+            <div class="p-4 bg-gray-800 rounded-lg text-center">
+                <p class="text-gray-400 text-sm">In Progress</p>
+                <p class="text-2xl font-bold text-blue-400 mt-1">{{ tasks_by_status.in_progress|default:"0" }}</p>
+            </div>
+            <div class="p-4 bg-gray-800 rounded-lg text-center">
+                <p class="text-gray-400 text-sm">Completed</p>
+                <p class="text-2xl font-bold text-green-400 mt-1">{{ tasks_by_status.completed|default:"0" }}</p>
+            </div>
+            <div class="p-4 bg-gray-800 rounded-lg text-center">
+                <p class="text-gray-400 text-sm">Blocked</p>
+                <p class="text-2xl font-bold text-red-400 mt-1">{{ tasks_by_status.blocked|default:"0" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <h3 class="text-xl font-semibold text-white mb-4">🚀 Quick Links</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="{% url 'tasks:task-board' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
+                <p class="text-gray-300 font-medium">Tasks</p>
+                <p class="text-gray-500 text-sm">Manage your work</p>
+            </a>
+            <a href="{% url 'mentor:list' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
+                <p class="text-gray-300 font-medium">Mentors</p>
+                <p class="text-gray-500 text-sm">Get guidance</p>
+            </a>
+            <a href="{% url 'investor:list' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
+                <p class="text-gray-300 font-medium">Investors</p>
+                <p class="text-gray-500 text-sm">Find funding</p>
+            </a>
+            <a href="{% url 'progress:dashboard' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
+                <p class="text-gray-300 font-medium">Progress</p>
+                <p class="text-gray-500 text-sm">Track metrics</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

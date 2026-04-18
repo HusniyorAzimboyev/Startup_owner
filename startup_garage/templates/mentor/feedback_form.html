@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Feedback - Startup Garage
+    {% else %}
+        Add Mentor Feedback - Startup Garage
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-white">
+            {% if form.instance.pk %}
+                ✏️ Edit Feedback
+            {% else %}
+                📝 Add Mentor Feedback
+            {% endif %}
+        </h1>
+        <p class="text-gray-400 mt-2">
+            {% if form.instance.pk %}
+                Update the feedback from your mentor session
+            {% else %}
+                Document insights and action items from your mentor session
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Mentor Name -->
+            <div>
+                <label for="id_mentor_name" class="block text-white font-medium mb-2">{{ form.mentor_name.label }}</label>
+                {{ form.mentor_name }}
+                {% if form.mentor_name.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.mentor_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Session Date -->
+            <div>
+                <label for="id_session_date" class="block text-white font-medium mb-2">{{ form.session_date.label }}</label>
+                {{ form.session_date }}
+                {% if form.session_date.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.session_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Comment (What was discussed) -->
+            <div>
+                <label for="id_comment" class="block text-white font-medium mb-2">{{ form.comment.label }}</label>
+                {{ form.comment }}
+                <p class="text-gray-400 text-sm mt-1">Summarize what was discussed in the session</p>
+                {% if form.comment.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.comment.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Recommendation -->
+            <div>
+                <label for="id_recommendation" class="block text-white font-medium mb-2">{{ form.recommendation.label }}</label>
+                {{ form.recommendation }}
+                <p class="text-gray-400 text-sm mt-1">What did your mentor recommend?</p>
+                {% if form.recommendation.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.recommendation.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Next Step -->
+            <div>
+                <label for="id_next_step" class="block text-white font-medium mb-2">{{ form.next_step.label }}</label>
+                {{ form.next_step }}
+                <p class="text-gray-400 text-sm mt-1">What's your action item from this session?</p>
+                {% if form.next_step.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.next_step.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                    {% if form.instance.pk %}
+                        Update Feedback
+                    {% else %}
+                        Save Feedback
+                    {% endif %}
+                </button>
+                <a href="{% url 'mentor:feedback-list' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tips -->
+    <div class="mt-8 p-6 bg-gray-900 border border-gray-800 rounded-xl">
+        <h3 class="text-white font-semibold mb-3">💡 Tips</h3>
+        <ul class="text-gray-400 text-sm space-y-2">
+            <li>• Be specific about what was discussed</li>
+            <li>• Document the mentor's key recommendations</li>
+            <li>• Set clear, actionable next steps</li>
+            <li>• Check off completed items to track progress</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

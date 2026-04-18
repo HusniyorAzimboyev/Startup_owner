@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ investor.user.get_full_name|default:investor.user.username }} - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Back Link -->
+    <div>
+        <a href="{% url 'investor:list' %}" class="text-blue-400 hover:text-blue-300 transition">
+            ← Back to Investors
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+        <div class="flex flex-col md:flex-row items-start gap-6 md:items-center">
+            <!-- Avatar -->
+            <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-bold text-4xl">{{ investor.user.username|upper|first }}</span>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1">
+                <h1 class="text-4xl font-bold text-white">{{ investor.user.get_full_name|default:investor.user.username }}</h1>
+                <p class="text-gray-400 text-lg mt-2">💼 Investor</p>
+
+                <!-- Badges -->
+                <div class="flex flex-wrap gap-2 mt-4">
+                    {% if investor.verified %}
+                        <span class="px-3 py-1 text-xs bg-green-900 text-green-200 rounded-full font-semibold">
+                            ✅ Verified Investor
+                        </span>
+                    {% else %}
+                        <span class="px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded-full font-semibold">
+                            Pending Verification
+                        </span>
+                    {% endif %}
+
+                    {% if investor.investment_range %}
+                        <span class="px-3 py-1 text-xs bg-green-900 text-green-200 rounded-full font-semibold">
+                            {{ investor.get_investment_range_display }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            {% if investor.verified %}
+                <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium">
+                    Schedule Meeting
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column (2 cols) -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Industries -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">🏢 Industries of Interest</h2>
+                <p class="text-gray-300 leading-relaxed whitespace-pre-wrap">{{ investor.industries }}</p>
+            </div>
+        </div>
+
+        <!-- Right Column (1 col - Sidebar) -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Quick Info -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+                <h3 class="text-lg font-semibold text-white">📋 Details</h3>
+
+                <div>
+                    <p class="text-gray-400 text-sm">Investment Stage</p>
+                    <p class="text-white font-semibold">
+                        {% if investor.investment_range %}
+                            {{ investor.get_investment_range_display }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-gray-400 text-sm">Status</p>
+                    <p class="text-white font-semibold">
+                        {% if investor.verified %}
+                            ✅ Verified
+                        {% else %}
+                            ⏳ Pending
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if investor.portfolio_link %}
+                    <div>
+                        <p class="text-gray-400 text-sm">Portfolio</p>
+                        <a href="{{ investor.portfolio_link }}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm break-all">
+                            {{ investor.portfolio_link|truncatewords:5 }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <p class="text-gray-400 text-sm">Member Since</p>
+                    <p class="text-white font-semibold">{{ investor.created_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-2">
+                {% if investor.verified %}
+                    <button class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm font-medium">
+                        Schedule Meeting
+                    </button>
+                {% endif %}
+
+                <a href="{% url 'investor:list' %}" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-center text-sm font-medium">
+                    Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

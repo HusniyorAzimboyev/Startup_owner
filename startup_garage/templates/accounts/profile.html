@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-8 mb-8">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+            <!-- Avatar -->
+            <div class="flex-shrink-0">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Profile picture" class="w-24 h-24 rounded-full object-cover border-2 border-blue-500">
+                {% else %}
+                    <div class="w-24 h-24 rounded-full bg-gray-800 border-2 border-gray-700 flex items-center justify-center">
+                        <span class="text-2xl text-gray-400">{{ user.username|first|upper }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- User Info -->
+            <div class="flex-1 text-center sm:text-left">
+                <h1 class="text-3xl font-bold text-white">{{ user.username }}</h1>
+                <p class="text-gray-400 mt-1">{{ user.email }}</p>
+                {% if user.startup_name %}
+                    <p class="text-blue-400 mt-2">{{ user.startup_name }}</p>
+                {% endif %}
+                <div class="flex flex-wrap gap-2 mt-4 justify-center sm:justify-start">
+                    {% if user.is_mentor %}
+                        <span class="px-3 py-1 bg-green-900 text-green-200 rounded-full text-sm">Mentor</span>
+                    {% endif %}
+                    {% if user.is_investor %}
+                        <span class="px-3 py-1 bg-purple-900 text-purple-200 rounded-full text-sm">Investor</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-8">
+        <h2 class="text-2xl font-bold text-white mb-6">Edit Profile</h2>
+
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+            <div class="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg text-red-200">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Profile Form -->
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Bio Field -->
+            <div>
+                <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                    Bio
+                </label>
+                {{ form.bio }}
+                <p class="text-gray-500 text-sm mt-1">Tell us about yourself and your startup journey</p>
+                {% if form.bio.errors %}
+                    <p class="mt-2 text-sm text-red-400">
+                        {% for error in form.bio.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Startup Name Field -->
+            <div>
+                <label for="{{ form.startup_name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                    Startup Name
+                </label>
+                {{ form.startup_name }}
+                {% if form.startup_name.errors %}
+                    <p class="mt-2 text-sm text-red-400">
+                        {% for error in form.startup_name.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Avatar Field -->
+            <div>
+                <label for="{{ form.avatar.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                    Profile Picture
+                </label>
+                <div class="relative">
+                    {{ form.avatar }}
+                    <p class="text-gray-500 text-sm mt-2">Upload a profile picture (JPG, PNG, GIF)</p>
+                </div>
+                {% if form.avatar.errors %}
+                    <p class="mt-2 text-sm text-red-400">
+                        {% for error in form.avatar.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Button Group -->
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    Save Changes
+                </button>
+                <a href="{% url 'dashboard:index' %}" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 text-center">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

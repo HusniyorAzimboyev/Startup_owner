@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Meeting - Startup Garage
+    {% else %}
+        Schedule Meeting - Startup Garage
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-white">
+            {% if form.instance.pk %}
+                ✏️ Edit Meeting
+            {% else %}
+                📅 Schedule Investor Meeting
+            {% endif %}
+        </h1>
+        <p class="text-gray-400 mt-2">
+            {% if form.instance.pk %}
+                Update the meeting details
+            {% else %}
+                Add a new investor meeting to your calendar
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Investor Name -->
+            <div>
+                <label for="id_investor_name" class="block text-white font-medium mb-2">{{ form.investor_name.label }}</label>
+                {{ form.investor_name }}
+                {% if form.investor_name.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.investor_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Company -->
+            <div>
+                <label for="id_company" class="block text-white font-medium mb-2">{{ form.company.label }}</label>
+                {{ form.company }}
+                <p class="text-gray-400 text-sm mt-1">Optional - investor's company name</p>
+                {% if form.company.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.company.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Meeting Date & Time -->
+            <div>
+                <label for="id_meeting_date" class="block text-white font-medium mb-2">{{ form.meeting_date.label }}</label>
+                {{ form.meeting_date }}
+                {% if form.meeting_date.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.meeting_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label for="id_status" class="block text-white font-medium mb-2">{{ form.status.label }}</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.status.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Notes -->
+            <div>
+                <label for="id_notes" class="block text-white font-medium mb-2">{{ form.notes.label }}</label>
+                {{ form.notes }}
+                <p class="text-gray-400 text-sm mt-1">Add meeting notes, outcomes, or follow-up items</p>
+                {% if form.notes.errors %}
+                    <p class="text-red-400 text-sm mt-1">{{ form.notes.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                    {% if form.instance.pk %}
+                        Update Meeting
+                    {% else %}
+                        Schedule Meeting
+                    {% endif %}
+                </button>
+                <a href="{% url 'investor:dashboard' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tips -->
+    <div class="mt-8 p-6 bg-gray-900 border border-gray-800 rounded-xl">
+        <h3 class="text-white font-semibold mb-3">💡 Tips</h3>
+        <ul class="text-gray-400 text-sm space-y-2">
+            <li>• Schedule meetings well in advance</li>
+            <li>• Add detailed notes before and after meetings</li>
+            <li>• Update the status after each meeting</li>
+            <li>• Track follow-ups for ongoing conversations</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

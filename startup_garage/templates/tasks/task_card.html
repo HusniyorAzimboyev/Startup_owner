@@ -1,0 +1,54 @@
+<div class="bg-gray-800 border border-gray-700 rounded-lg p-4 cursor-move hover:border-blue-500 transition" 
+     draggable="true" 
+     data-task-id="{{ task.id }}">
+    <!-- Task Header -->
+    <div class="flex justify-between items-start">
+        <div class="flex-1">
+            <a href="{% url 'tasks:task-update' task.id %}" class="text-white font-medium hover:text-blue-400 transition">
+                {{ task.title }}
+            </a>
+        </div>
+        <!-- Drag Handle -->
+        <svg class="w-5 h-5 text-gray-500 ml-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 6a2 2 0 11-4 0 2 2 0 014 0zM10 12a2 2 0 11-4 0 2 2 0 014 0zM10 18a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+    </div>
+
+    <!-- Description (if exists) -->
+    {% if task.description %}
+        <p class="text-gray-400 text-sm mt-2 line-clamp-2">{{ task.description }}</p>
+    {% endif %}
+
+    <!-- Task Meta -->
+    <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
+        <!-- Priority Badge -->
+        <span class="px-2 py-1 text-xs rounded font-semibold
+            {% if task.priority == 'high' %}
+                bg-red-900 text-red-200
+            {% elif task.priority == 'medium' %}
+                bg-yellow-900 text-yellow-200
+            {% else %}
+                bg-gray-700 text-gray-300
+            {% endif %}
+        ">
+            {{ task.get_priority_display }}
+        </span>
+
+        <!-- Due Date -->
+        {% if task.due_date %}
+            <span class="text-gray-400 text-xs">
+                📅 {{ task.due_date|date:"M d" }}
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2 mt-3">
+        <a href="{% url 'tasks:task-update' task.id %}" class="text-xs text-blue-400 hover:text-blue-300 transition">
+            Edit
+        </a>
+        <a href="{% url 'tasks:task-delete' task.id %}" class="text-xs text-red-400 hover:text-red-300 transition">
+            Delete
+        </a>
+    </div>
+</div>

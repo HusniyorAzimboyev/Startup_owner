@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Find Investors - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-white">💼 Find Investors</h1>
+            <p class="text-gray-400 mt-2">Connect with verified investors looking for startups like yours</p>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <input type="text" placeholder="Search investors..." class="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
+            <select class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                <option value="">All Investment Stages</option>
+                <option value="seed">Seed Stage</option>
+                <option value="series_a">Series A</option>
+                <option value="series_b">Series B</option>
+                <option value="growth">Growth Stage</option>
+            </select>
+            <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                Search
+            </button>
+        </div>
+    </div>
+
+    <!-- Investors Grid -->
+    {% if investors %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for investor in investors %}
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-green-500 transition">
+                    <!-- Avatar & Name -->
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">{{ investor.user.username|upper|first }}</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">{{ investor.user.get_full_name|default:investor.user.username }}</h3>
+                            <p class="text-gray-400 text-sm">Investor</p>
+                        </div>
+                    </div>
+
+                    <!-- Investment Range Badge -->
+                    {% if investor.investment_range %}
+                        <div class="mb-4">
+                            <span class="px-3 py-1 text-xs bg-green-900 text-green-200 rounded-full font-semibold">
+                                {{ investor.get_investment_range_display }}
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    <!-- Industries of Interest -->
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-400 mb-2">Industries</p>
+                        <p class="text-gray-300 text-sm line-clamp-2">{{ investor.industries }}</p>
+                    </div>
+
+                    <!-- Verification Badge -->
+                    <div class="mb-4">
+                        {% if investor.verified %}
+                            <span class="px-3 py-1 text-xs bg-blue-900 text-blue-200 rounded-full font-semibold">
+                                ✅ Verified Investor
+                            </span>
+                        {% else %}
+                            <span class="px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded-full font-semibold">
+                                Pending Verification
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Portfolio Link -->
+                    {% if investor.portfolio_link %}
+                        <a href="{{ investor.portfolio_link }}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm mb-4 inline-block">
+                            View Portfolio →
+                        </a>
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="flex gap-2 mt-4">
+                        <a href="{% url 'investor:detail' investor.pk %}" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition text-center">
+                            View Profile
+                        </a>
+                        {% if investor.verified %}
+                            <button class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition">
+                                Reach Out
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
+            <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-white mb-2">No verified investors available</h3>
+            <p class="text-gray-400">Check back soon or navigate to your investor dashboard to track meetings</p>
+            <a href="{% url 'investor:dashboard' %}" class="text-blue-400 hover:text-blue-300 mt-4 inline-block">
+                Go to Investor Dashboard →
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Why Investors Use Startup Garage -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <div class="text-3xl mb-3">📊</div>
+            <h3 class="text-lg font-semibold text-white mb-2">Curated Deals</h3>
+            <p class="text-gray-400 text-sm">Access pre-vetted startups with complete pitch decks and traction data</p>
+        </div>
+        
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <div class="text-3xl mb-3">📈</div>
+            <h3 class="text-lg font-semibold text-white mb-2">Track Progress</h3>
+            <p class="text-gray-400 text-sm">Monitor your investments and see real-time progress reports from founders</p>
+        </div>
+        
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <div class="text-3xl mb-3">🤝</div>
+            <h3 class="text-lg font-semibold text-white mb-2">Build Relationships</h3>
+            <p class="text-gray-400 text-sm">Connect with founders and other investors in a vibrant community</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

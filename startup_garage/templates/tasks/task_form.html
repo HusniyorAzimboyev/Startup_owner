@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold text-white mb-2">{{ action }}</h1>
+        <p class="text-gray-400 mb-8">{% if action == "Create Task" %}Create a new task to add to your Kanban board{% else %}Update your task details{% endif %}</p>
+
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+            <div class="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg text-red-200">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Task Form -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Title Field -->
+            <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                    Task Title *
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="mt-2 text-sm text-red-400">
+                        {% for error in form.title.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Description Field -->
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="mt-2 text-sm text-red-400">
+                        {% for error in form.description.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Status & Priority (side by side) -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Status Field -->
+                <div>
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                        Status
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <p class="mt-2 text-sm text-red-400">
+                            {% for error in form.status.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Priority Field -->
+                <div>
+                    <label for="{{ form.priority.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                        Priority
+                    </label>
+                    {{ form.priority }}
+                    {% if form.priority.errors %}
+                        <p class="mt-2 text-sm text-red-400">
+                            {% for error in form.priority.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Due Date Field -->
+            <div>
+                <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                    Due Date
+                </label>
+                {{ form.due_date }}
+                {% if form.due_date.errors %}
+                    <p class="mt-2 text-sm text-red-400">
+                        {% for error in form.due_date.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Button Group -->
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    {{ action }}
+                </button>
+                <a href="{% url 'tasks:task-board' %}" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 text-center">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

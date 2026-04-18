@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Detailed Metrics - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-white">📊 Detailed Metrics</h1>
+            <p class="text-gray-400 mt-2">In-depth view of all your startup metrics</p>
+        </div>
+        <a href="{% url 'progress:dashboard' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex gap-4">
+        <a href="{% url 'progress:dashboard' %}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition">
+            Metrics
+        </a>
+        <a href="{% url 'progress:metrics' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
+            Detailed View
+        </a>
+    </div>
+
+    <!-- Metrics by Type -->
+    {% if metrics %}
+        {% regroup metrics by get_metric_type_display as metrics_by_type %}
+        
+        {% for type_group in metrics_by_type %}
+            <div class="space-y-6">
+                <h2 class="text-2xl font-bold text-white">{{ type_group.grouper }}</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {% for metric in type_group.list %}
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+                            <!-- Header -->
+                            <div class="mb-6">
+                                <h3 class="text-2xl font-bold text-white">{{ metric.title }}</h3>
+                                {% if metric.description %}
+                                    <p class="text-gray-400 text-sm mt-2">{{ metric.description }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Large Progress Display -->
+                            <div class="mb-8 p-6 bg-gray-800 rounded-lg">
+                                <div class="text-center">
+                                    <div class="text-5xl font-bold text-white mb-2">
+                                        {{ metric.progress_percentage|floatformat:0 }}%
+                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-4">
+                                        <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 h-4 rounded-full transition-all"
+                                             style="width: {{ metric.progress_percentage|floatformat:0 }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Stats -->
+                            <div class="space-y-4 bg-gray-800 p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-400">Current Value</span>
+                                    <span class="text-2xl font-bold text-blue-400">{{ metric.current_value }}</span>
+                                </div>
+                                <div class="border-t border-gray-700 pt-4 flex items-center justify-between">
+                                    <span class="text-gray-400">Target Value</span>
+                                    <span class="text-2xl font-bold text-white">{{ metric.target_value }}</span>
+                                </div>
+                                {% if metric.unit %}
+                                    <div class="border-t border-gray-700 pt-4 flex items-center justify-between">
+                                        <span class="text-gray-400">Unit of Measure</span>
+                                        <span class="text-white font-semibold">{{ metric.unit }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="border-t border-gray-700 pt-4 flex items-center justify-between">
+                                    <span class="text-gray-400">Remaining</span>
+                                    <span class="text-white font-semibold">
+                                        {{ metric.target_value|add:metric.current_value|stringformat:'.0f' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Metadata -->
+                            <div class="mt-6 text-sm text-gray-400 space-y-2">
+                                <div>Created: {{ metric.created_at|date:"M d, Y" }}</div>
+                                <div>Last Updated: {{ metric.updated_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
+            <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-white mb-2">No metrics yet</h3>
+            <p class="text-gray-400 mb-6">Create your first metric to start tracking progress</p>
+            <a href="{% url 'dashboard:index' %}" class="text-blue-400 hover:text-blue-300">
+                Go to Dashboard →
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Tips Section -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+        <h3 class="text-2xl font-bold text-white mb-6">💡 Tips for Effective Metrics</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="p-4 bg-gray-800 rounded-lg">
+                <h4 class="text-white font-semibold mb-2">📊 Keep It Simple</h4>
+                <p class="text-gray-400 text-sm">Track the metrics that matter most to your business. Quality over quantity.</p>
+            </div>
+            <div class="p-4 bg-gray-800 rounded-lg">
+                <h4 class="text-white font-semibold mb-2">🎯 Set SMART Goals</h4>
+                <p class="text-gray-400 text-sm">Make your targets Specific, Measurable, Achievable, Relevant, and Time-bound.</p>
+            </div>
+            <div class="p-4 bg-gray-800 rounded-lg">
+                <h4 class="text-white font-semibold mb-2">✅ Update Regularly</h4>
+                <p class="text-gray-400 text-sm">Keep your metrics current to see accurate progress and make informed decisions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
