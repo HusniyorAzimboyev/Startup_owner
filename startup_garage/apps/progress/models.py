@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import Value
 from datetime import date
 
 
@@ -14,7 +13,7 @@ class ProgressMetric(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     target_value = models.DecimalField(max_digits=15, decimal_places=2)
-    current_value = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    current_value = models.DecimalField(max_digits=15, decimal_places=2, db_default=0)
     unit = models.CharField(max_length=50, blank=True)
     metric_type = models.CharField(
         max_length=50,
@@ -24,7 +23,7 @@ class ProgressMetric(models.Model):
             ('engagement', 'Engagement'),
             ('custom', 'Custom'),
         ],
-        default='custom'
+        db_default='custom'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -90,17 +89,14 @@ class DailyProgress(models.Model):
         on_delete=models.CASCADE,
         related_name='daily_progress'
     )
-    date = models.DateField(default=date.today)
-    tasks_completed = models.IntegerField(default=0)
-    tasks_total = models.IntegerField(default=0)
+    date = models.DateField(db_default=date.today)
+    tasks_completed = models.IntegerField(db_default=0)
+    tasks_total = models.IntegerField(db_default=0)
     note = models.TextField(blank=True, help_text="Daily note")
 
     class Meta:
         unique_together = [['user', 'date']]
         ordering = ['-date']
-
-    def __str__(self):
-        return f"{self.user.username} - {self.date}"
 
     @property
     def completion_rate(self):
@@ -108,3 +104,6 @@ class DailyProgress(models.Model):
         if self.tasks_total == 0:
             return 0
         return round((self.tasks_completed / self.tasks_total) * 100)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date}: {self.completion_rate}%"

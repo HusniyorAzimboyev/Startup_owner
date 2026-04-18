@@ -142,22 +142,22 @@
             </div>
 
             <!-- Mentor Tip -->
-            {% if mentor_tip %}
+            {% if latest_mentor_step %}
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 border-green-700">
-                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Mentor Session</h4>
-                    <p class="text-gray-300 font-medium">{{ mentor_tip.title }}</p>
-                    <p class="text-gray-400 text-sm mt-2">with <span class="text-blue-400">{{ mentor_tip.mentor }}</span></p>
-                    <p class="text-gray-400 text-sm">{{ mentor_tip.date|date:"M d" }}</p>
-                    <a href="{% url 'mentor:list' %}" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">
-                        View Mentors →
+                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Next Mentor Action</h4>
+                    <p class="text-gray-300 font-medium">{{ latest_mentor_step.mentor_name }}</p>
+                    <p class="text-gray-400 text-sm mt-2 p-3 bg-gray-800 rounded">{{ latest_mentor_step.next_step }}</p>
+                    <p class="text-gray-500 text-xs mt-3">from {{ latest_mentor_step.session_date|date:"M d, Y" }}</p>
+                    <a href="{% url 'mentor:feedback-list' %}" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">
+                        View All Feedback →
                     </a>
                 </div>
             {% else %}
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Get a Mentor</h4>
-                    <p class="text-gray-300 text-sm mb-4">Connect with experienced mentors to guide your journey.</p>
-                    <a href="{% url 'mentor:list' %}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm">
-                        Find Mentors →
+                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Get Mentor Feedback</h4>
+                    <p class="text-gray-300 text-sm mb-4">Track action items from mentor sessions.</p>
+                    <a href="{% url 'mentor:feedback-list' %}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm">
+                        View Feedback →
                     </a>
                 </div>
             {% endif %}
@@ -170,19 +170,19 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="p-4 bg-gray-800 rounded-lg text-center">
                 <p class="text-gray-400 text-sm">To Do</p>
-                <p class="text-2xl font-bold text-white mt-1">{{ tasks_by_status.todo|default:"0" }}</p>
+                <p class="text-2xl font-bold text-white mt-1">{{ todo_count|default:"0" }}</p>
             </div>
             <div class="p-4 bg-gray-800 rounded-lg text-center">
                 <p class="text-gray-400 text-sm">In Progress</p>
-                <p class="text-2xl font-bold text-blue-400 mt-1">{{ tasks_by_status.in_progress|default:"0" }}</p>
+                <p class="text-2xl font-bold text-blue-400 mt-1">{{ in_progress_count|default:"0" }}</p>
             </div>
             <div class="p-4 bg-gray-800 rounded-lg text-center">
                 <p class="text-gray-400 text-sm">Completed</p>
-                <p class="text-2xl font-bold text-green-400 mt-1">{{ tasks_by_status.completed|default:"0" }}</p>
+                <p class="text-2xl font-bold text-green-400 mt-1">{{ done_count|default:"0" }}</p>
             </div>
             <div class="p-4 bg-gray-800 rounded-lg text-center">
-                <p class="text-gray-400 text-sm">Blocked</p>
-                <p class="text-2xl font-bold text-red-400 mt-1">{{ tasks_by_status.blocked|default:"0" }}</p>
+                <p class="text-gray-400 text-sm">Total</p>
+                <p class="text-2xl font-bold text-gray-300 mt-1">{{ total_tasks|default:"0" }}</p>
             </div>
         </div>
     </div>
@@ -203,7 +203,7 @@
                 <p class="text-gray-300 font-medium">Investors</p>
                 <p class="text-gray-500 text-sm">Find funding</p>
             </a>
-            <a href="{% url 'progress:dashboard' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
+            <a href="{% url 'progress:overview' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
                 <p class="text-gray-300 font-medium">Progress</p>
                 <p class="text-gray-500 text-sm">Track metrics</p>
             </a>

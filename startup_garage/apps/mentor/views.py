@@ -5,14 +5,17 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
+import logging
 from .models import Mentor, MentorSession, MentorFeedback
 from .forms import MentorFeedbackForm
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
 def mentor_list(request):
-    """List all mentors"""
-    mentors = Mentor.objects.filter(verified=True)
+    """List all verified mentors with optimized queries"""
+    mentors = Mentor.objects.filter(verified=True).select_related('user')
     context = {
         'mentors': mentors,
     }
@@ -22,7 +25,10 @@ def mentor_list(request):
 @login_required
 def mentor_detail(request, pk):
     """Mentor detail view"""
-    mentor = Mentor.objects.get(pk=pk)
+    mentor = get_object_or_404(
+        Mentor.objects.select_related('user'),
+        pk=pk
+    )
     context = {
         'mentor': mentor,
     }
@@ -35,9 +41,12 @@ class FeedbackListView(LoginRequiredMixin, ListView):
     template_name = 'mentor/feedback_list.html'
     context_object_name = 'feedbacks'
     paginate_by = 20
+    max_paginate_by = 100  # Prevent DoS with excessive page sizes
 
     def get_queryset(self):
-        return MentorFeedback.objects.filter(user=self.request.user)
+        return MentorFeedback.objects.filter(
+            user=self.request.user
+        ).select_related('mentor', 'mentor__user').order_by('-session_date')
 
 
 class FeedbackCreateView(LoginRequiredMixin, CreateView):
@@ -59,7 +68,9 @@ class FeedbackDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'feedback'
 
     def get_queryset(self):
-        return MentorFeedback.objects.filter(user=self.request.user)
+        return MentorFeedback.objects.filter(
+            user=self.request.user
+        ).select_related('mentor', 'mentor__user')
 
 
 class FeedbackUpdateView(LoginRequiredMixin, UpdateView):
@@ -77,10 +88,17 @@ class FeedbackUpdateView(LoginRequiredMixin, UpdateView):
 @require_http_methods(["POST"])
 def complete_next_step(request, pk):
     """Toggle is_completed status for feedback"""
-    feedback = get_object_or_404(MentorFeedback, pk=pk, user=request.user)
-    feedback.is_completed = not feedback.is_completed
-    feedback.save()
-    return JsonResponse({
-        'success': True,
-        'is_completed': feedback.is_completed,
-    })
+    try:
+        feedback = get_object_or_404(MentorFeedback, pk=pk, user=request.user)
+        feedback.is_completed = not feedback.is_completed
+        feedback.save(update_fields=['is_completed'])
+        return JsonResponse({
+            'success': True,
+            'is_completed': feedback.is_completed,
+        })
+    except Exception as e:
+        logger.exception(f'Error completing mentor step {pk} for user {request.user.id}: {e}')
+        return JsonResponse({
+            'success': False,
+            'error': 'Failed to update step status'
+        }, status=500)

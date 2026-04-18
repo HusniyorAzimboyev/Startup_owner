@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="{% url 'dashboard:index' %}" class="text-2xl font-bold text-blue-500">
+                    <a href="{% url 'home' %}" class="text-2xl font-bold text-blue-500">
                         Startup Garage
                     </a>
                 </div>
@@ -22,9 +22,13 @@
                         <a href="{% url 'accounts:profile' %}" class="text-gray-300 hover:text-white transition">
                             Profile
                         </a>
-                        <a href="{% url 'accounts:logout' %}" class="text-gray-300 hover:text-white transition">
-                            Logout
-                        </a>
+                        <!-- Logout Form (POST required for Django 6.x) -->
+                        <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-300 hover:text-white transition bg-none border-none cursor-pointer">
+                                Logout
+                            </button>
+                        </form>
                     {% else %}
                         <a href="{% url 'accounts:login' %}" class="text-gray-300 hover:text-white transition">
                             Login
@@ -38,13 +42,21 @@
         </div>
     </nav>
 
-    <!-- Messages -->
+    <!-- Messages (Secure Message Display) -->
     {% if messages %}
         {% for message in messages %}
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-                <div class="p-4 rounded-lg {% if message.tags %}bg-{{ message.tags }}-900 text-{{ message.tags }}-200{% else %}bg-blue-900 text-blue-200{% endif %}">
+                {% with message_class=message.tags|lower %}
+                <div class="p-4 rounded-lg 
+                    {% if message_class == 'error' %}bg-red-900 text-red-200
+                    {% elif message_class == 'success' %}bg-green-900 text-green-200
+                    {% elif message_class == 'warning' %}bg-yellow-900 text-yellow-200
+                    {% elif message_class == 'info' %}bg-blue-900 text-blue-200
+                    {% else %}bg-blue-900 text-blue-200{% endif %}
+                ">
                     {{ message }}
                 </div>
+                {% endwith %}
             </div>
         {% endfor %}
     {% endif %}

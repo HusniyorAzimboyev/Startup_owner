@@ -15,8 +15,8 @@
         </a>
     </div>
 
-    <!-- Kanban Board -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Kanban Board (data attribute for task move URL) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-task-move-url="{% url 'tasks:task-move' 0 %}">
         <!-- To Do Column -->
         <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
             <!-- Column Header -->
@@ -177,8 +177,13 @@
         // Move element to new container
         this.insertBefore(taskElement, this.querySelector('p'));
 
+        // Build move URL from data attribute (replacing template variable)
+        const boardElement = document.querySelector('[data-task-move-url]');
+        const moveUrlTemplate = boardElement.getAttribute('data-task-move-url');
+        const taskMoveUrl = moveUrlTemplate.replace('0', taskId);
+
         // Send move request to server
-        fetch(`/tasks/${taskId}/move/`, {
+        fetch(taskMoveUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

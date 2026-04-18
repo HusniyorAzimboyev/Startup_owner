@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -22,9 +22,9 @@ class RegisterView(CreateView):
     success_url = reverse_lazy('dashboard:index')
 
     def dispatch(self, request, *args, **kwargs):
-        """Apply login_not_required decorator to this view"""
+        """Redirect authenticated users to dashboard"""
         if request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)
+            return redirect('dashboard:index')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):

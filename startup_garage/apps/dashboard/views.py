@@ -3,12 +3,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, UpdateView
 from django.urls import reverse_lazy
 from django.db.models import Count, Q
+from django import forms
 from django.utils import timezone
 from datetime import timedelta
 from .models import StartupProfile
+from .forms import StartupProfileForm
 from apps.tasks.models import Task
-from apps.mentor.models import MentorSession
+from apps.mentor.models import MentorFeedback
 from apps.progress.models import Milestone
+from apps.progress.utils import calculate_streak, sync_daily_progress
 
 import logging
 
@@ -16,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 # Stage-based focus tips
 STAGE_TIPS = {
-    'idea': 'Focus on validating your idea with potential users. Get feedback before building.',
-    'mvp': 'Build the minimum viable product. Ship something to test your assumptions.',
-    'growth': 'Scale up your traction. Focus on user acquisition and retention.',
+    "idea": "🎯 Validate your idea — interview 10 potential users this week",
+    "mvp": "💰 Get your first paying customer — launch a pilot offer",
+    "growth": "📈 Double down on what's working — optimize your top channel",
 }
 
 
@@ -30,6 +33,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
+        # Sync today's progress first
+        try:
+            sync_daily_progress(user)
+        except Exception as e:
+            logger.exception(f'Error syncing daily progress for user {user.id}: {e}')
+
         # Optimized query: Get startup profile
         try:
             startup = StartupProfile.objects.select_related('user').only(
@@ -37,43 +46,40 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 'kpi_traction', 'created_at'
             ).get(user=user)
         except StartupProfile.DoesNotExist:
-            startup = StartupProfile.objects.create(
-                user=user,
-                name=f"{user.username}'s Startup"
-            )
+            try:
+                startup = StartupProfile.objects.create(
+                    user=user,
+                    name=f"{user.username}'s Startup"
+                )
+            except Exception as e:
+                logger.exception(f'Error creating startup profile for user {user.id}: {e}')
+                raise
 
-        # Get today's tasks grouped by status
-        today = timezone.now().date()
-        tasks = Task.objects.filter(user=user).values('status').annotate(count=Count('id'))
-        tasks_by_status = {task['status']: task['count'] for task in tasks}
+        # Get task counts by status
+        tasks = Task.objects.filter(user=user)
+        context["todo_count"] = tasks.filter(status="todo").count()
+        context["in_progress_count"] = tasks.filter(status="in_progress").count()
+        context["done_count"] = tasks.filter(status="done").count()
+        context["total_tasks"] = tasks.count()
 
-        # Get latest incomplete mentor session
-        mentor_tip = None
-        try:
-            recent_mentor = MentorSession.objects.filter(
-                mentee=user,
-                status='scheduled'
-            ).select_related('mentor', 'mentor__user').only(
-                'title', 'scheduled_at', 'mentor__user__username'
-            ).first()
-            if recent_mentor:
-                mentor_tip = {
-                    'title': recent_mentor.title,
-                    'mentor': recent_mentor.mentor.user.username,
-                    'date': recent_mentor.scheduled_at
-                }
-        except Exception as e:
-            logger.warning(f"Error fetching mentor session: {e}")
+        # Get latest incomplete mentor feedback with next step
+        latest_step = MentorFeedback.objects.filter(
+            user=user,
+            is_completed=False,
+            next_step__gt=""  # Excludes empty next_step
+        ).order_by("-session_date").first()
+
+        context["latest_mentor_step"] = latest_step
 
         # Get stage-based focus tip
-        stage_tip = STAGE_TIPS.get(startup.stage, 'Keep building and learning!')
+        stage_tip = STAGE_TIPS.get(startup.stage, STAGE_TIPS["idea"])
 
-        # Calculate streak count from milestones (recent achieved)
-        streak = Milestone.objects.filter(
-            user=user,
-            status='achieved',
-            achieved_date__gte=today - timedelta(days=30)
-        ).count()
+        # Calculate streak from DailyProgress entries
+        try:
+            streak = calculate_streak(user)
+        except Exception as e:
+            logger.exception(f'Error calculating streak for user {user.id}: {e}')
+            streak = 0
 
         # Get top 3 tasks for the day
         top_tasks = Task.objects.filter(
@@ -82,8 +88,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         context.update({
             'startup': startup,
-            'tasks_by_status': tasks_by_status,
-            'mentor_tip': mentor_tip,
             'stage_tip': stage_tip,
             'streak': streak,
             'top_tasks': top_tasks,
@@ -96,47 +100,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 class StartupProfileUpdateView(LoginRequiredMixin, UpdateView):
     """Update startup profile"""
     model = StartupProfile
-    fields = ['name', 'stage', 'kpi_users', 'kpi_revenue', 'kpi_traction']
+    form_class = StartupProfileForm
     template_name = 'dashboard/profile_update.html'
     success_url = reverse_lazy('dashboard:index')
 
     def get_object(self, queryset=None):
         """Get the startup profile for the current user"""
         return StartupProfile.objects.select_related('user').get(user=self.request.user)
-
-    def get_form_class(self):
-        """Return the form class"""
-        from django.forms import ModelForm
-        from .models import StartupProfile
-
-        class StartupProfileForm(ModelForm):
-            class Meta:
-                model = StartupProfile
-                fields = ['name', 'stage', 'kpi_users', 'kpi_revenue', 'kpi_traction']
-                widgets = {
-                    'name': __import__('django.forms', fromlist=['TextInput']).TextInput(attrs={
-                        'class': 'w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-900 text-white',
-                        'placeholder': 'Startup name'
-                    }),
-                    'stage': __import__('django.forms', fromlist=['Select']).Select(attrs={
-                        'class': 'w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-900 text-white',
-                    }),
-                    'kpi_users': __import__('django.forms', fromlist=['NumberInput']).NumberInput(attrs={
-                        'class': 'w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-900 text-white',
-                        'placeholder': 'Number of users'
-                    }),
-                    'kpi_revenue': __import__('django.forms', fromlist=['NumberInput']).NumberInput(attrs={
-                        'class': 'w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-900 text-white',
-                        'placeholder': 'Revenue ($)'
-                    }),
-                    'kpi_traction': __import__('django.forms', fromlist=['Textarea']).Textarea(attrs={
-                        'class': 'w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-900 text-white',
-                        'placeholder': 'Traction details',
-                        'rows': 4
-                    }),
-                }
-
-        return StartupProfileForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import Value
 
 
 class Task(models.Model):
@@ -27,12 +26,12 @@ class Task(models.Model):
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default='todo'
+        db_default='todo'
     )
     priority = models.CharField(
         max_length=10,
         choices=PRIORITY_CHOICES,
-        default='medium'
+        db_default='medium'
     )
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

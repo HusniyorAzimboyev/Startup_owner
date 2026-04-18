@@ -17,10 +17,10 @@ class Mentor(models.Model):
             ('limited', 'Limited Availability'),
             ('unavailable', 'Unavailable'),
         ],
-        default='available'
+        db_default='available'
     )
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    verified = models.BooleanField(default=False)
+    verified = models.BooleanField(db_default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -42,7 +42,7 @@ class MentorSession(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     scheduled_at = models.DateTimeField()
-    duration_minutes = models.IntegerField(default=60)
+    duration_minutes = models.IntegerField(db_default=60)
     status = models.CharField(
         max_length=20,
         choices=[
@@ -50,7 +50,7 @@ class MentorSession(models.Model):
             ('completed', 'Completed'),
             ('cancelled', 'Cancelled'),
         ],
-        default='scheduled'
+        db_default='scheduled'
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -73,7 +73,7 @@ class MentorFeedback(models.Model):
     comment = models.TextField(help_text="What was discussed in the session")
     recommendation = models.TextField(blank=True, help_text="Mentor's recommendation")
     next_step = models.TextField(blank=True, help_text="Next action item")
-    is_completed = models.BooleanField(default=False)
+    is_completed = models.BooleanField(db_default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
