@@ -180,6 +180,28 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # Logging Configuration
+LOGGING_HANDLERS = {
+    'console': {
+        'level': 'INFO',
+        'class': 'logging.StreamHandler',
+        'formatter': 'simple'
+    },
+}
+
+# Add file handler only in production (when logs directory is guaranteed to exist)
+if not DEBUG:
+    LOGGING_HANDLERS['file'] = {
+        'level': 'WARNING',
+        'class': 'logging.handlers.RotatingFileHandler',
+        'filename': BASE_DIR / 'logs' / 'django.log',
+        'maxBytes': 1024 * 1024 * 10,  # 10 MB
+        'backupCount': 5,
+        'formatter': 'verbose',
+    }
+
+# Use appropriate handlers based on environment
+DEFAULT_HANDLERS = ['console', 'file'] if not DEBUG else ['console']
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -201,29 +223,15 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugTrue',
         },
     },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
-        'file': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'maxBytes': 1024 * 1024 * 10,  # 10 MB
-            'backupCount': 5,
-            'formatter': 'verbose',
-        },
-    },
+    'handlers': LOGGING_HANDLERS,
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': DEFAULT_HANDLERS,
             'level': 'INFO',
             'propagate': False,
         },
         'apps': {
-            'handlers': ['console', 'file'],
+            'handlers': DEFAULT_HANDLERS,
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },
