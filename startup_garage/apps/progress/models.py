@@ -99,6 +99,17 @@ class DailyProgress(models.Model):
         unique_together = [['user', 'date']]
         ordering = ['-date']
 
+    def __str__(self):
+        return f"{self.user.username} - {self.date}"
+
+    @property
+    def completion_rate(self):
+        """Calculate completion rate percentage"""
+        if self.tasks_total == 0:
+            return 0
+        rate = (self.tasks_completed / self.tasks_total) * 100
+        return min(100, max(0, round(rate, 1)))
+
     @property
     def completion_rate(self):
         """Calculate task completion percentage"""

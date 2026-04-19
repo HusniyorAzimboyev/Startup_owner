@@ -110,8 +110,8 @@ class ProgressOverviewView(LoginRequiredMixin, TemplateView):
             all_time_completed = all_time_data.get('total') or 0
             
             # Calculate this week's average completion rate (safe)
-            week_data = list(last_7_days.values_list('completion_rate', flat=True))
-            weekly_avg = round(sum(week_data) / len(week_data)) if week_data else 0
+            week_rates = [item.completion_rate for item in last_7_days]
+            weekly_avg = round(sum(week_rates) / len(week_rates)) if week_rates else 0
             
             # Clamp values to 0-100 range
             weekly_avg = min(max(weekly_avg, 0), 100)

@@ -86,13 +86,35 @@
 
     <!-- Chart Section -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
-        <h2 class="text-2xl font-bold text-white mb-6">📊 Last 7 Days</h2>
+        <h2 class="text-2xl font-bold text-white mb-2">📈 Performance Trading Chart</h2>
+        <p class="text-gray-400 text-sm mb-6">Real-time completion rate trends (Last 7 days)</p>
         
-        <div class="bg-gray-800 p-6 rounded-lg">
-            <canvas id="progressChart" height="80"></canvas>
+        <div class="relative">
+            <!-- Chart Grid Background -->
+            <div class="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
+                <div class="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent"></div>
+            </div>
+            
+            <div class="relative bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <canvas id="progressChart" height="100"></canvas>
+            </div>
         </div>
         
-        <p class="text-gray-400 text-sm mt-4 text-center">Task completion rate over the last 7 days</p>
+        <!-- Chart Legend and Stats -->
+        <div class="grid grid-cols-3 gap-4 mt-6">
+            <div class="p-3 bg-gray-800 rounded-lg text-center border-l-4 border-green-500">
+                <p class="text-gray-400 text-xs">Peak</p>
+                <p class="text-xl font-bold text-green-400">100%</p>
+            </div>
+            <div class="p-3 bg-gray-800 rounded-lg text-center border-l-4 border-blue-500">
+                <p class="text-gray-400 text-xs">Current</p>
+                <p class="text-xl font-bold text-blue-400">{{ today_progress.completion_rate }}%</p>
+            </div>
+            <div class="p-3 bg-gray-800 rounded-lg text-center border-l-4 border-orange-500">
+                <p class="text-gray-400 text-xs">Average</p>
+                <p class="text-xl font-bold text-orange-400">{{ weekly_avg }}%</p>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Activity Timeline -->
@@ -165,7 +187,7 @@
     </div>
 </div>
 
-<!-- Chart.js -->
+<!-- Chart.js and Plugins -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 <script>
     // Wait for DOM to be ready before initializing chart
@@ -178,28 +200,106 @@
             const labels = raw.map(d => d.date);
             const data = raw.map(d => d.rate);
             const ctx = chartElement.getContext('2d');
+            
+            // Create gradient for the trading chart
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(34, 197, 94, 0.4)');
+            gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.2)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
+            
             new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
                         {
                             label: 'Completion Rate %',
                             data: data,
-                            backgroundColor: '#3B82F6',
-                            borderColor: '#1F2937',
+                            borderColor: '#10B981',
+                            backgroundColor: gradient,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#10B981',
+                            pointBorderColor: '#1F2937',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 8,
+                            pointHoverBackgroundColor: '#34D399',
+                            pointHoverBorderColor: '#ffffff',
+                            pointHoverBorderWidth: 2,
+                            segment: {
+                                borderColor: ctx => {
+                                    const val = data[ctx.p0DataIndex];
+                                    if (val >= 80) return '#10B981';
+                                    if (val >= 50) return '#3B82F6';
+                                    return '#F59E0B';
+                                },
+                            }
+                        },
+                        // Add reference line at 50%
+                        {
+                            label: 'Target 50%',
+                            data: [50, 50, 50, 50, 50, 50, 50],
+                            borderColor: '#64748B',
                             borderWidth: 1,
-                            borderRadius: 4,
-                            hoverBackgroundColor: '#2563EB',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0,
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
                     plugins: {
                         legend: {
-                            display: false,
+                            display: true,
+                            labels: {
+                                color: '#9CA3AF',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                padding: 20,
+                                usePointStyle: true,
+                            }
+                        },
+                        filler: {
+                            propagate: true
+                        },
+                        tooltip: {
+                            backgroundColor: '#1F2937',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#E5E7EB',
+                            borderColor: '#10B981',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y + '%';
+                                    return label;
+                                },
+                                afterLabel: function(context) {
+                                    if (context.datasetIndex === 0) {
+                                        const val = context.parsed.y;
+                                        if (val >= 80) return '📈 Excellent performance';
+                                        if (val >= 50) return '📊 Good progress';
+                                        if (val > 0) return '⚠️ Below target';
+                                        return '⏸️ No activity';
+                                    }
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -208,19 +308,35 @@
                             max: 100,
                             ticks: {
                                 color: '#9CA3AF',
+                                font: {
+                                    size: 11,
+                                },
                                 callback: function(value) {
                                     return value + '%';
                                 }
                             },
                             grid: {
                                 color: '#374151',
+                                drawBorder: false,
+                                lineWidth: 0.5,
+                            },
+                            border: {
+                                display: false,
                             }
                         },
                         x: {
                             ticks: {
                                 color: '#9CA3AF',
+                                font: {
+                                    size: 11,
+                                    weight: 'bold'
+                                }
                             },
                             grid: {
+                                display: false,
+                                drawBorder: false,
+                            },
+                            border: {
                                 display: false,
                             }
                         }
