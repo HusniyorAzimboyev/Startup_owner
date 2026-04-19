@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class Investor(models.Model):
@@ -22,7 +23,7 @@ class Investor(models.Model):
     industries = models.TextField(help_text="Interest in industries")
     portfolio_link = models.URLField(blank=True, null=True)
     verified = models.BooleanField(db_default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -53,7 +54,7 @@ class Investment(models.Model):
         ],
         db_default='interested'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ['-date']
@@ -83,7 +84,7 @@ class PitchDeck(models.Model):
         blank=True,
         help_text="Internal notes about the pitch deck"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

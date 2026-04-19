@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from datetime import date
+from django.utils import timezone
 
 
 class ProgressMetric(models.Model):
@@ -25,7 +26,7 @@ class ProgressMetric(models.Model):
         ],
         db_default='custom'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -72,7 +73,7 @@ class Milestone(models.Model):
         ],
         default='medium'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -89,7 +90,7 @@ class DailyProgress(models.Model):
         on_delete=models.CASCADE,
         related_name='daily_progress'
     )
-    date = models.DateField(db_default=date.today)
+    date = models.DateField(default=date.today)
     tasks_completed = models.IntegerField(db_default=0)
     tasks_total = models.IntegerField(db_default=0)
     note = models.TextField(blank=True, help_text="Daily note")

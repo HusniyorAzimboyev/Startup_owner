@@ -3,6 +3,21 @@
 {% block title %}Tasks - Kanban Board - Startup Garage{% endblock %}
 
 {% block content %}
+<style>
+    /* Drag and drop visual feedback */
+    [data-status].drag-over {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        border-color: #3b82f6 !important;
+        border-width: 2px !important;
+    }
+
+    [draggable="true"].dragging {
+        opacity: 0.5;
+        background-color: rgba(59, 130, 246, 0.2);
+        border-color: #3b82f6;
+    }
+</style>
+
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
@@ -34,7 +49,8 @@
                  data-status="todo" 
                  data-column-name="To Do"
                  ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)">
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)">
                 {% for task in todo_tasks %}
                     {% include "tasks/task_card.html" with task=task %}
                 {% empty %}
@@ -67,7 +83,8 @@
                  data-status="in_progress" 
                  data-column-name="In Progress"
                  ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)">
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)">
                 {% for task in in_progress_tasks %}
                     {% include "tasks/task_card.html" with task=task %}
                 {% empty %}
@@ -100,7 +117,8 @@
                  data-status="done" 
                  data-column-name="Done"
                  ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)">
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)">
                 {% for task in done_tasks %}
                     {% include "tasks/task_card.html" with task=task %}
                 {% empty %}
@@ -144,12 +162,16 @@
     function handleDragStart(e) {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/html', this.innerHTML);
-        this.classList.add('opacity-50');
+        this.classList.add('dragging');
     }
 
     // Handle drag end
     function handleDragEnd(e) {
-        this.classList.remove('opacity-50');
+        this.classList.remove('dragging');
+        // Remove all drag-over highlights
+        document.querySelectorAll('[data-status]').forEach(container => {
+            container.classList.remove('drag-over');
+        });
     }
 
     // Handle drag over
@@ -158,7 +180,18 @@
             e.preventDefault();
         }
         e.dataTransfer.dropEffect = 'move';
+        
+        // Add visual highlight to container
+        this.classList.add('drag-over');
         return false;
+    }
+
+    // Handle drag leave
+    function handleDragLeave(e) {
+        // Only remove highlight if dragging is leaving the container itself
+        if (e.target === this) {
+            this.classList.remove('drag-over');
+        }
     }
 
     // Handle drop
@@ -167,7 +200,10 @@
             e.stopPropagation();
         }
 
-        const taskElement = document.querySelector('[draggable="true"].opacity-50');
+        // Remove highlight
+        this.classList.remove('drag-over');
+
+        const taskElement = document.querySelector('[draggable="true"].dragging');
         if (!taskElement) return false;
 
         const taskId = taskElement.getAttribute('data-task-id');
@@ -224,12 +260,31 @@
     }
 
     // Initialize drag and drop
-    document.addEventListener('DOMContentLoaded', function() {
+    function initializeDragDrop() {
         const tasks = document.querySelectorAll('[draggable="true"]');
         tasks.forEach(task => {
+            // Remove old listeners
+            task.removeEventListener('dragstart', handleDragStart);
+            task.removeEventListener('dragend', handleDragEnd);
+            
+            // Add new listeners
             task.addEventListener('dragstart', handleDragStart);
             task.addEventListener('dragend', handleDragEnd);
         });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDragDrop();
+    });
+
+    // Re-initialize when new tasks are added (dynamic content)
+    const observer = new MutationObserver(function(mutations) {
+        initializeDragDrop();
+    });
+
+    observer.observe(document.querySelector('[data-task-move-url]'), {
+        childList: true,
+        subtree: true
     });
 </script>
 {% endblock %}

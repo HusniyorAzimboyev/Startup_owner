@@ -93,6 +93,137 @@
         </div>
     </div>
 
+    <!-- 🎯 BOOKED SESSIONS - COMPACT -->
+    {% if upcoming_sessions %}
+    <div class="bg-gradient-to-r from-green-900 to-emerald-900 border border-green-500 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">✅</span>
+                <div>
+                    <p class="font-semibold text-white text-sm">Upcoming Sessions</p>
+                    <p class="text-green-300 text-xs">{{ upcoming_sessions|length }} booked</p>
+                </div>
+            </div>
+            
+            <!-- Quick Session Preview -->
+            {% for session in upcoming_sessions|slice:":1" %}
+            <div class="flex items-center gap-4 text-sm">
+                <div>
+                    <p class="text-gray-300">{{ session.mentor.user.get_full_name }}</p>
+                    <p class="text-green-300 text-xs">{{ session.scheduled_at|date:"M d, H:i" }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-green-300 font-bold text-lg countdown" data-time="{{ session.scheduled_at|date:'c' }}">--</p>
+                    <p class="text-gray-400 text-xs">remaining</p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <a href="{% url 'mentor:list' %}" class="ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition">
+                View All
+            </a>
+        </div>
+    </div>
+
+    <!-- JavaScript for Live Countdown -->
+    <script>
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown').forEach(el => {
+                const targetTime = new Date(el.dataset.time).getTime();
+                const now = new Date().getTime();
+                const diff = targetTime - now;
+
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    let countdownText = '';
+                    if (days > 0) {
+                        countdownText = `${days}d ${hours}h ${minutes}m`;
+                    } else if (hours > 0) {
+                        countdownText = `${hours}h ${minutes}m ${seconds}s`;
+                    } else {
+                        countdownText = `${minutes}m ${seconds}s`;
+                    }
+
+                    el.textContent = countdownText;
+                    
+                    // Add pulse effect when less than 1 hour
+                    if (diff < 3600000 && !el.classList.contains('animate-pulse')) {
+                        el.classList.add('animate-pulse');
+                    }
+                } else {
+                    el.textContent = 'Session in progress';
+                    el.classList.add('text-yellow-300');
+                    el.classList.remove('text-green-300');
+                }
+            });
+        }
+
+        // Update immediately and then every second
+        updateCountdowns();
+        setInterval(updateCountdowns, 1000);
+    </script>
+
+    {% else %}
+    <!-- No Sessions - Show CTA -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 border-2 border-blue-500 rounded-xl p-8">
+        <!-- Background decoration -->
+        <div class="absolute top-0 right-0 w-40 h-40 bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-40 h-40 bg-purple-400 rounded-full opacity-10 blur-3xl"></div>
+        
+        <!-- Content -->
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Section: Info -->
+            <div class="lg:col-span-2">
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="text-3xl">🗓️</div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-white">Connect with Expert Mentors</h2>
+                        <p class="text-blue-200 mt-2">Schedule 1-on-1 sessions during working hours (9 AM - 6 PM)</p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-200 text-sm">Available Mentors</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-200 text-sm">Real-time Availability</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-200 text-sm">Book Instantly</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-200 text-sm">Get Actionable Feedback</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: CTA Button -->
+            <div class="flex flex-col justify-between">
+                <div>
+                    <p class="text-white font-semibold mb-2">Next Step:</p>
+                    <p class="text-gray-300 text-sm">Find the right mentor and book your first session now</p>
+                </div>
+                <a href="{% url 'mentor:session-planner' %}" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition duration-300 shadow-lg hover:shadow-blue-500/50 flex items-center justify-center gap-2 group">
+                    <span>🚀 Book Session Now</span>
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Daily Focus Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Today's Tasks -->

@@ -5,11 +5,126 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
+from datetime import datetime, timedelta, time
 import logging
 from .models import Mentor, MentorSession, MentorFeedback
 from .forms import MentorFeedbackForm
 
 logger = logging.getLogger(__name__)
+
+
+@login_required
+def session_planner(request, mentor_id=None):
+    """Session planner with calendar view - shows available time slots"""
+    selected_mentor = None
+    
+    if mentor_id:
+        selected_mentor = get_object_or_404(
+            Mentor.objects.select_related('user'),
+            pk=mentor_id,
+            verified=True
+        )
+        mentors = [selected_mentor]
+    else:
+        mentors = Mentor.objects.filter(verified=True).select_related('user')
+    
+    # Generate next 7 days of available slots (optimized for performance)
+    available_slots = []
+    start_date = datetime.now().date()
+    mentor_ids = [m.id for m in mentors]
+    
+    # Get all booked sessions for next 30 days in one query
+    booked_sessions = MentorSession.objects.filter(
+        mentor_id__in=mentor_ids,
+        scheduled_at__gte=datetime.now(),
+        scheduled_at__lt=datetime.combine(start_date + timedelta(days=7), time(23, 59)),
+        status__in=['scheduled', 'completed']
+    ).values_list('mentor_id', 'scheduled_at__date', 'scheduled_at__hour')
+    
+    booked_set = set(booked_sessions)
+    
+    for mentor_obj in mentors:
+        for i in range(7):  # Only next 7 days for faster loading
+            current_date = start_date + timedelta(days=i)
+            
+            # Skip weekends
+            if current_date.weekday() >= 5:
+                continue
+            
+            # Generate 1-hour slots from 9 AM to 6 PM
+            for hour in range(9, 18):
+                slot_time = datetime.combine(current_date, time(hour, 0))
+                
+                # Check if slot is in the future
+                if slot_time > datetime.now():
+                    # Check if already booked using the set
+                    is_booked = (mentor_obj.id, current_date, hour) in booked_set
+                    
+                    if not is_booked:
+                        available_slots.append({
+                            'mentor': mentor_obj,
+                            'datetime': slot_time,
+                            'date_str': current_date.strftime('%A, %B %d'),
+                            'time_str': f"{hour}:00",
+                            'hour': hour,
+                        })
+    
+    context = {
+        'mentors': mentors,
+        'available_slots': available_slots,
+        'selected_mentor': selected_mentor,
+    }
+    return render(request, 'mentor/session_planner.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def book_session(request):
+    """Book a mentor session"""
+    try:
+        mentor_id = request.POST.get('mentor_id')
+        session_datetime_str = request.POST.get('datetime')
+        title = request.POST.get('title', 'Mentoring Session')
+        description = request.POST.get('description', '')
+        
+        mentor = get_object_or_404(Mentor, pk=mentor_id, verified=True)
+        session_datetime = datetime.fromisoformat(session_datetime_str)
+        
+        # Check if slot is available
+        existing = MentorSession.objects.filter(
+            mentor=mentor,
+            scheduled_at=session_datetime,
+            status__in=['scheduled', 'completed']
+        ).exists()
+        
+        if existing:
+            return JsonResponse({
+                'success': False,
+                'error': 'This time slot is no longer available'
+            }, status=400)
+        
+        # Create session
+        session = MentorSession.objects.create(
+            mentor=mentor,
+            mentee=request.user,
+            title=title,
+            description=description,
+            scheduled_at=session_datetime,
+            duration_minutes=60,
+            status='scheduled'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'session_id': session.id,
+            'message': f'Session booked with {mentor.user.get_full_name()} on {session_datetime.strftime("%A, %B %d at %I:%M %p")}'
+        })
+    except Exception as e:
+        logger.exception(f'Error booking session for user {request.user.id}: {e}')
+        return JsonResponse({
+            'success': False,
+            'error': 'Failed to book session'
+        }, status=500)
 
 
 @login_required

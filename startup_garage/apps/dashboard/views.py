@@ -9,7 +9,7 @@ from datetime import timedelta
 from .models import StartupProfile
 from .forms import StartupProfileForm
 from apps.tasks.models import Task
-from apps.mentor.models import MentorFeedback
+from apps.mentor.models import MentorFeedback, MentorSession
 from apps.progress.models import Milestone
 from apps.progress.utils import calculate_streak, sync_daily_progress
 
@@ -86,12 +86,21 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             user=user
         ).order_by('-priority', 'due_date')[:3]
 
+        # Get upcoming booked mentor sessions (next 30 days)
+        upcoming_sessions = MentorSession.objects.filter(
+            mentee=user,
+            scheduled_at__gte=timezone.now(),
+            scheduled_at__lt=timezone.now() + timedelta(days=30),
+            status__in=['scheduled', 'confirmed']
+        ).select_related('mentor', 'mentor__user').order_by('scheduled_at')[:5]
+
         context.update({
             'startup': startup,
             'stage_tip': stage_tip,
             'streak': streak,
             'top_tasks': top_tasks,
             'stage_progress': startup.stage_progress(),
+            'upcoming_sessions': upcoming_sessions,
         })
 
         return context
