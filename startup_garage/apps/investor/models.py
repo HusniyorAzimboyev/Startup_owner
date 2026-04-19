@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import Value
+from django.utils import timezone
 
 
 class Investor(models.Model):
@@ -22,8 +22,8 @@ class Investor(models.Model):
     )
     industries = models.TextField(help_text="Interest in industries")
     portfolio_link = models.URLField(blank=True, null=True)
-    verified = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    verified = models.BooleanField(db_default=False)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -42,7 +42,7 @@ class Investment(models.Model):
         related_name='received_investments'
     )
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage = models.DecimalField(max_digits=5, decimal_places=2, db_default=0)
     date = models.DateField()
     status = models.CharField(
         max_length=20,
@@ -52,9 +52,9 @@ class Investment(models.Model):
             ('completed', 'Completed'),
             ('declined', 'Declined'),
         ],
-        default='interested'
+        db_default='interested'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ['-date']
@@ -70,7 +70,7 @@ class PitchDeck(models.Model):
         on_delete=models.CASCADE,
         related_name='pitch_deck'
     )
-    version = models.CharField(max_length=20, default="v1.0")
+    version = models.CharField(max_length=20, db_default="v1.0")
     status = models.CharField(
         max_length=20,
         choices=[
@@ -78,13 +78,13 @@ class PitchDeck(models.Model):
             ('review', 'In Review'),
             ('ready', 'Ready'),
         ],
-        default='draft'
+        db_default='draft'
     )
     notes = models.TextField(
         blank=True,
         help_text="Internal notes about the pitch deck"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -126,13 +126,14 @@ class InvestorMeeting(models.Model):
             ('followup', 'Follow-up'),
             ('passed', 'Passed'),
         ],
-        default='scheduled'
+        db_default='scheduled'
     )
     notes = models.TextField(
         blank=True,
         help_text="Meeting notes and outcomes"
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['meeting_date']

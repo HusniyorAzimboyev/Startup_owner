@@ -1,5 +1,5 @@
 from django import forms
-from .models import MentorFeedback
+from .models import MentorFeedback, Mentor
 
 
 class MentorFeedbackForm(forms.ModelForm):
@@ -7,11 +7,10 @@ class MentorFeedbackForm(forms.ModelForm):
     
     class Meta:
         model = MentorFeedback
-        fields = ['mentor_name', 'session_date', 'comment', 'recommendation', 'next_step']
+        fields = ['mentor', 'session_date', 'comment', 'recommendation', 'next_step']
         widgets = {
-            'mentor_name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500',
-                'placeholder': 'Mentor\'s name',
+            'mentor': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500',
             }),
             'session_date': forms.DateInput(attrs={
                 'class': 'w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500',
@@ -36,7 +35,8 @@ class MentorFeedbackForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['mentor_name'].label = 'Mentor Name'
+        self.fields['mentor'].label = 'Select Mentor'
+        self.fields['mentor'].queryset = Mentor.objects.select_related('user').all()
         self.fields['session_date'].label = 'Session Date'
         self.fields['comment'].label = 'What was discussed?'
         self.fields['recommendation'].label = 'Recommendation'

@@ -76,6 +76,7 @@
                         </h2>
                         <button class="px-4 py-2 rounded-lg font-medium transition complete-action-btn" 
                                 data-feedback-id="{{ feedback.pk }}"
+                                data-url="{% url 'mentor:feedback-complete' feedback.pk %}"
                                 title="Toggle completion status">
                             {% if feedback.is_completed %}
                                 <span class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition inline-flex items-center gap-2">
@@ -177,15 +178,32 @@
 </div>
 
 <script>
+    // Get CSRF token from cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
     // Handle completion toggle via AJAX
     document.querySelector('.complete-action-btn')?.addEventListener('click', async function(e) {
         e.preventDefault();
-        const feedbackId = this.dataset.feedbackId;
-        const response = await fetch(`/mentor/feedback/${feedbackId}/complete/`, {
+        const feedbackUrl = this.dataset.url;
+        const response = await fetch(feedbackUrl, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
-                               document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1],
+                'X-CSRFToken': csrftoken,
                 'Content-Type': 'application/json',
             }
         });

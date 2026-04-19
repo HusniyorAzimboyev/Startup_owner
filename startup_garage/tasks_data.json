@@ -1,0 +1,502 @@
+{
+  "tasks": [
+    {
+      "username": "alex_chen",
+      "startup": "CloudSync AI",
+      "tasks": [
+        {
+          "title": "Implement cloud synchronization API",
+          "description": "Build REST API endpoints for real-time data sync across devices. Include authentication and rate limiting.",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-25"
+        },
+        {
+          "title": "Complete unit tests for auth module",
+          "description": "Write comprehensive tests for user authentication and token management. Target 95% code coverage.",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-18"
+        },
+        {
+          "title": "Setup CI/CD pipeline",
+          "description": "Configure GitHub Actions for automated testing and deployment",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-28"
+        },
+        {
+          "title": "Database optimization",
+          "description": "Add indexes and optimize slow queries. Expected improvement: 40%",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-05"
+        },
+        {
+          "title": "Customer feedback analysis",
+          "description": "Review and categorize feedback from first 100 beta users",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-15"
+        },
+        {
+          "title": "Design mobile app interface",
+          "description": "Create Figma prototypes for iOS and Android applications",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-02"
+        },
+        {
+          "title": "Fix memory leak in sync service",
+          "description": "Investigate and fix memory leak reported by 3 users in production",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-20"
+        },
+        {
+          "title": "Update documentation",
+          "description": "Add API documentation and deployment guide for developers",
+          "status": "todo",
+          "priority": "low",
+          "due_date": "2026-05-10"
+        },
+        {
+          "title": "Security audit preparation",
+          "description": "Prepare codebase and infrastructure for third-party security audit",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-30"
+        },
+        {
+          "title": "Schedule investor meetings",
+          "description": "Reach out to 10 VCs for Series A fundraising conversations",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-04-26"
+        },
+        {
+          "title": "Beta user retention program",
+          "description": "Launch community building initiatives to retain beta users",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-14"
+        }
+      ]
+    },
+    {
+      "username": "sarah_khan",
+      "startup": "PayFlow",
+      "tasks": [
+        {
+          "title": "PCI compliance certification",
+          "description": "Complete PCI DSS v3.2.1 compliance audit and get certified",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-05-15"
+        },
+        {
+          "title": "Payment gateway integration",
+          "description": "Integrate Stripe, PayPal, and Apple Pay payment processors",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-27"
+        },
+        {
+          "title": "Fraud detection system",
+          "description": "Implement ML-based fraud detection for suspicious transactions",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-20"
+        },
+        {
+          "title": "Banking partnerships outreach",
+          "description": "Contact 15 regional banks for partnership opportunities",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-12"
+        },
+        {
+          "title": "Dashboard analytics redesign",
+          "description": "Improve transaction analytics and reporting UI/UX",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-01"
+        },
+        {
+          "title": "Settlement reconciliation module",
+          "description": "Build automated reconciliation for daily settlements",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-24"
+        },
+        {
+          "title": "Multi-currency support",
+          "description": "Add support for EUR, GBP, JPY, and AUD currencies",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-08"
+        },
+        {
+          "title": "Customer onboarding flow",
+          "description": "Simplify KYC and reduce time-to-first-transaction to 5 mins",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-10"
+        },
+        {
+          "title": "API rate limiting",
+          "description": "Implement rate limiting to prevent API abuse",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-16"
+        },
+        {
+          "title": "Press release preparation",
+          "description": "Prepare launch announcement and reach out to fintech media",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-22"
+        },
+        {
+          "title": "Regulatory compliance checklist",
+          "description": "Verify compliance with local payment regulations in 5 countries",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-10"
+        }
+      ]
+    },
+    {
+      "username": "mike_johnson",
+      "startup": "MediConnect",
+      "tasks": [
+        {
+          "title": "HIPAA compliance audit",
+          "description": "Ensure all patient data handling meets HIPAA requirements",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-05-10"
+        },
+        {
+          "title": "Telemedicine video integration",
+          "description": "Integrate Zoom API for secure video consultations",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-14"
+        },
+        {
+          "title": "Medical records import tool",
+          "description": "Build tool to import patient records from EHR systems",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-28"
+        },
+        {
+          "title": "Hospital partnerships",
+          "description": "Negotiate partnerships with 5 major hospital networks",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-05"
+        },
+        {
+          "title": "Prescription management system",
+          "description": "Create digital prescription workflow integrated with pharmacies",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-15"
+        },
+        {
+          "title": "Patient appointment scheduling",
+          "description": "Build automated scheduling with calendar sync",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-11"
+        },
+        {
+          "title": "Mobile app QA testing",
+          "description": "Complete testing on 20+ Android and iOS devices",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-26"
+        },
+        {
+          "title": "Clinical data analytics",
+          "description": "Build dashboard showing patient outcomes and treatment effectiveness",
+          "status": "todo",
+          "priority": "low",
+          "due_date": "2026-05-20"
+        },
+        {
+          "title": "Insurance integration",
+          "description": "Connect with major insurance providers for billing",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-12"
+        },
+        {
+          "title": "FDA submission preparation",
+          "description": "Gather documentation for potential medical device classification",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-05-25"
+        },
+        {
+          "title": "Patient satisfaction survey",
+          "description": "Deploy NPS survey to first 500 users",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-13"
+        }
+      ]
+    },
+    {
+      "username": "priya_patel",
+      "startup": "EduFlow",
+      "tasks": [
+        {
+          "title": "Course content creation",
+          "description": "Create 10 complete courses covering programming fundamentals",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-05-30"
+        },
+        {
+          "title": "Interactive code editor",
+          "description": "Build browser-based code editor with real-time execution",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-29"
+        },
+        {
+          "title": "Student progress tracking",
+          "description": "Create detailed analytics dashboard for student performance",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-12"
+        },
+        {
+          "title": "School partnerships",
+          "description": "Contact 50 schools to integrate EduFlow into curriculum",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-08"
+        },
+        {
+          "title": "Certification program",
+          "description": "Design and launch completion certificates",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-18"
+        },
+        {
+          "title": "Teacher dashboard",
+          "description": "Build interface for teachers to track student progress",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-25"
+        },
+        {
+          "title": "Gamification features",
+          "description": "Add badges, leaderboards, and achievement system",
+          "status": "todo",
+          "priority": "low",
+          "due_date": "2026-05-15"
+        },
+        {
+          "title": "Content localization",
+          "description": "Translate courses to Spanish and Mandarin",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-20"
+        },
+        {
+          "title": "Student feedback implementation",
+          "description": "Review and implement feedback from pilot program",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-16"
+        },
+        {
+          "title": "Government grant applications",
+          "description": "Apply for education technology grants",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-05-01"
+        },
+        {
+          "title": "LMS integration",
+          "description": "Integrate with Blackboard and Canvas LMS platforms",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-10"
+        }
+      ]
+    },
+    {
+      "username": "husniyor09",
+      "startup": "Break a leg!",
+      "tasks": [
+        {
+          "title": "MVP feature completion",
+          "description": "Finish remaining MVP features for launch",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-24"
+        },
+        {
+          "title": "Bug fixes from beta testing",
+          "description": "Fix 25 reported bugs from beta users",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-22"
+        },
+        {
+          "title": "Performance optimization",
+          "description": "Reduce page load time from 3s to under 1s",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-02"
+        },
+        {
+          "title": "User feedback survey",
+          "description": "Send surveys to all beta testers",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-15"
+        },
+        {
+          "title": "Marketing materials",
+          "description": "Create pitch deck, website copy, and social media assets",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-28"
+        },
+        {
+          "title": "Public beta launch",
+          "description": "Launch public beta and announce on ProductHunt",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-01"
+        },
+        {
+          "title": "Customer support setup",
+          "description": "Setup email support and live chat system",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-10"
+        },
+        {
+          "title": "Analytics implementation",
+          "description": "Setup Google Analytics and product analytics",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-12"
+        },
+        {
+          "title": "Investor pitch refinement",
+          "description": "Practice and refine pitch with mentors",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-26"
+        },
+        {
+          "title": "Team hiring",
+          "description": "Hire first developer and designer",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-05-05"
+        },
+        {
+          "title": "Documentation",
+          "description": "Write comprehensive user guide and FAQ",
+          "status": "todo",
+          "priority": "low",
+          "due_date": "2026-05-08"
+        }
+      ]
+    },
+    {
+      "username": "user",
+      "startup": "General Account",
+      "tasks": [
+        {
+          "title": "Project kickoff meeting",
+          "description": "Schedule and conduct project kickoff with team",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-10"
+        },
+        {
+          "title": "Requirements documentation",
+          "description": "Document all project requirements and use cases",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-23"
+        },
+        {
+          "title": "Design mockups review",
+          "description": "Review and approve design mockups with team",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-14"
+        },
+        {
+          "title": "Development environment setup",
+          "description": "Setup dev environment and deployment pipeline",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-20"
+        },
+        {
+          "title": "Team training",
+          "description": "Conduct training sessions for new team members",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-02"
+        },
+        {
+          "title": "Risk assessment",
+          "description": "Identify and document project risks",
+          "status": "done",
+          "priority": "high",
+          "due_date": "2026-04-12"
+        },
+        {
+          "title": "Stakeholder communication",
+          "description": "Weekly status updates to all stakeholders",
+          "status": "in_progress",
+          "priority": "medium",
+          "due_date": "2026-04-27"
+        },
+        {
+          "title": "Code review process",
+          "description": "Establish code review guidelines and process",
+          "status": "done",
+          "priority": "medium",
+          "due_date": "2026-04-15"
+        },
+        {
+          "title": "Testing framework setup",
+          "description": "Configure unit testing and integration testing",
+          "status": "in_progress",
+          "priority": "high",
+          "due_date": "2026-04-25"
+        },
+        {
+          "title": "Budget review",
+          "description": "Review project budget and forecast",
+          "status": "todo",
+          "priority": "medium",
+          "due_date": "2026-05-05"
+        },
+        {
+          "title": "Client presentation",
+          "description": "Prepare and deliver quarterly business review",
+          "status": "todo",
+          "priority": "high",
+          "due_date": "2026-04-30"
+        }
+      ]
+    }
+  ]
+}

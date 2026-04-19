@@ -4,11 +4,12 @@ from . import views
 app_name = 'investor'
 
 urlpatterns = [
-    path('', views.investor_list, name='list'),
-    path('<int:pk>/', views.investor_detail, name='detail'),
+    # Dashboard (primary view)
+    path('', views.InvestorDashboardView.as_view(), name='dashboard'),
     
-    # Dashboard
-    path('dashboard/', views.InvestorDashboardView.as_view(), name='dashboard'),
+    # Investor Directory
+    path('list/', views.investor_list, name='list'),
+    path('<int:pk>/', views.investor_detail, name='detail'),
     
     # Meetings
     path('meeting/create/', views.MeetingCreateView.as_view(), name='meeting-create'),

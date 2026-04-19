@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Session Planner - Connect with Mentors{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-white">🗓️ Session Planner</h1>
+            <p class="text-gray-400 mt-2">Schedule a session with expert mentors during working hours</p>
+        </div>
+        <a href="{% url 'mentor:list' %}" class="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+            ← Back to Mentors
+        </a>
+    </div>
+
+    <!-- Mentor Filter -->
+    {% if not selected_mentor %}
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">📍 Choose a Mentor</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'mentor:session-planner' %}" class="p-4 bg-gray-800 border-2 border-blue-500 rounded-lg hover:bg-blue-900 transition text-center">
+                <p class="text-white font-semibold">All Mentors</p>
+                <p class="text-gray-400 text-sm mt-1">{{ mentors|length }} available</p>
+            </a>
+            {% for mentor in mentors %}
+            <a href="{% url 'mentor:session-planner-mentor' mentor.id %}" class="p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-blue-500 hover:bg-gray-700 transition">
+                <p class="text-white font-semibold">{{ mentor.user.get_full_name }}</p>
+                <p class="text-gray-400 text-xs mt-1">{{ mentor.expertise|truncatewords:3 }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Available Slots -->
+    {% if available_slots %}
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-6">⏰ Available Time Slots (Next 30 Days)</h3>
+        
+        <!-- Calendar View -->
+        <div class="space-y-4 max-h-[700px] overflow-y-auto">
+            {% regroup available_slots by date_str as slots_by_date %}
+            
+            {% for date_group in slots_by_date %}
+            <div class="border-b border-gray-700 pb-4">
+                <!-- Date Header -->
+                <div class="flex items-center mb-3">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                    <h4 class="text-white font-semibold">{{ date_group.grouper }}</h4>
+                </div>
+                
+                <!-- Time Slots for this date -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 ml-4">
+                    {% for slot in date_group.list %}
+                    <button 
+                        class="slot-button py-2 px-3 bg-gray-800 border border-gray-700 text-white rounded-lg hover:bg-blue-600 hover:border-blue-500 transition duration-200"
+                        data-mentor-id="{{ slot.mentor.id }}"
+                        data-mentor-name="{{ slot.mentor.user.get_full_name }}"
+                        data-datetime="{{ slot.datetime|date:'c' }}"
+                        data-time="{{slot.time_str }}"
+                        onclick="selectSlot(this)">
+                        <span class="text-sm font-medium">{{ slot.time_str }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Booking Form (hidden by default) -->
+    <div id="bookingModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">📅 Book Session</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="bookingForm" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Selected Details -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <p class="text-gray-400 text-sm">Mentor</p>
+                    <p id="selectedMentor" class="text-white font-semibold">-</p>
+                    
+                    <p class="text-gray-400 text-sm mt-3">Date & Time</p>
+                    <p id="selectedDateTime" class="text-white font-semibold">-</p>
+                </div>
+
+                <!-- Session Title -->
+                <div>
+                    <label for="title" class="block text-white font-medium mb-2">Session Title</label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        placeholder="e.g., Product Strategy Discussion"
+                        class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                        required>
+                </div>
+
+                <!-- Session Description -->
+                <div>
+                    <label for="description" class="block text-white font-medium mb-2">What do you want to discuss?</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        placeholder="Be specific about what you'd like help with..."
+                        rows="4"
+                        class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"></textarea>
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" id="mentorId" name="mentor_id">
+                <input type="hidden" id="datetime" name="datetime">
+
+                <!-- Buttons -->
+                <div class="flex gap-3 pt-4">
+                    <button 
+                        type="button" 
+                        onclick="closeModal()"
+                        class="flex-1 py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit"
+                        class="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                        ✓ Confirm Booking
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 max-w-sm">
+        <div class="flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <p id="successText" class="font-semibold">Session booked!</p>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- No Slots Available -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
+        <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-gray-400 text-lg">No available slots at the moment</p>
+        <p class="text-gray-500 text-sm mt-2">Check back soon or contact mentors directly</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    let selectedSlot = null;
+
+    function selectSlot(button) {
+        // Remove previous selection
+        document.querySelectorAll('.slot-button').forEach(btn => {
+            btn.classList.remove('bg-blue-600', 'border-blue-500');
+            btn.classList.add('bg-gray-800', 'border-gray-700');
+        });
+
+        // Select this slot
+        button.classList.remove('bg-gray-800', 'border-gray-700');
+        button.classList.add('bg-blue-600', 'border-blue-500');
+
+        selectedSlot = {
+            mentorId: button.dataset.mentorId,
+            mentorName: button.dataset.mentorName,
+            datetime: button.dataset.datetime,
+            time: button.dataset.time,
+        };
+
+        // Update form with selection
+        document.getElementById('mentorId').value = selectedSlot.mentorId;
+        document.getElementById('datetime').value = selectedSlot.datetime;
+        document.getElementById('selectedMentor').textContent = selectedSlot.mentorName;
+        
+        const date = new Date(selectedSlot.datetime);
+        const formattedDate = date.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        const formattedTime = date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true
+        });
+        
+        document.getElementById('selectedDateTime').textContent = `${formattedDate} at ${formattedTime}`;
+
+        // Show modal
+        document.getElementById('bookingModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('bookingModal').classList.add('hidden');
+        document.getElementById('bookingForm').reset();
+    }
+
+    // Close modal when pressing Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    // Handle form submission
+    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = '⏳ Booking...';
+
+        try {
+            const response = await fetch('{% url "mentor:book-session" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Show success message
+                const successMsg = document.getElementById('successMessage');
+                document.getElementById('successText').textContent = data.message;
+                successMsg.classList.remove('hidden');
+
+                closeModal();
+
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '{% url "mentor:list" %}';
+                }, 2000);
+            } else {
+                alert('Error: ' + data.error);
+                submitButton.disabled = false;
+                submitButton.textContent = '✓ Confirm Booking';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to book session');
+            submitButton.disabled = false;
+            submitButton.textContent = '✓ Confirm Booking';
+        }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('bookingModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

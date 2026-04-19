@@ -1,13 +1,19 @@
 import json
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.db.models import Count, Q
+from django.core.exceptions import ValidationError
 from .models import Task
 from .forms import TaskForm
+
+logger = logging.getLogger(__name__)
 
 
 class TaskBoardView(LoginRequiredMixin, TemplateView):
@@ -88,6 +94,8 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
 
 
 @require_POST
+@login_required
+@csrf_protect
 def task_move(request, pk):
     """Move task to a different status (AJAX endpoint)"""
     try:
@@ -95,20 +103,42 @@ def task_move(request, pk):
         data = json.loads(request.body)
         new_status = data.get('status')
 
-        # Validate status
-        valid_statuses = ['todo', 'in_progress', 'done']
+        # Validate status against model choices
+        valid_statuses = [status[0] for status in Task.STATUS_CHOICES]
         if new_status not in valid_statuses:
-            return JsonResponse({'ok': False, 'error': 'Invalid status'}, status=400)
+            return JsonResponse(
+                {'ok': False, 'error': 'Invalid status'},
+                status=400
+            )
 
         # Update task status
         task.status = new_status
         task.save(update_fields=['status', 'updated_at'])
 
         return JsonResponse({'ok': True, 'status': new_status})
+
     except Task.DoesNotExist:
-        return JsonResponse({'ok': False, 'error': 'Task not found'}, status=404)
+        logger.warning(f'Task {pk} not found or user {request.user.id} does not own it')
+        return JsonResponse(
+            {'ok': False, 'error': 'Task not found'},
+            status=404
+        )
     except json.JSONDecodeError:
-        return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
+        logger.warning(f'Invalid JSON received in task_move request from user {request.user.id}')
+        return JsonResponse(
+            {'ok': False, 'error': 'Invalid JSON'},
+            status=400
+        )
+    except (ValidationError, ValueError) as e:
+        logger.error(f'Validation error in task_move for task {pk}: {e}')
+        return JsonResponse(
+            {'ok': False, 'error': 'Invalid data'},
+            status=400
+        )
     except Exception as e:
-        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
+        logger.exception(f'Unexpected error moving task {pk} for user {request.user.id}')
+        return JsonResponse(
+            {'ok': False, 'error': 'Internal error'},
+            status=500
+        )
 

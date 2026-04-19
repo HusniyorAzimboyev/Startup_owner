@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-900 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard:index' %}" class="text-2xl font-bold text-blue-500">
+                        Startup Garage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="min-h-screen flex items-center justify-center">
+            <div class="text-center">
+                <!-- Error Code -->
+                <div class="mb-8">
+                    <h1 class="text-9xl font-bold text-gray-700 mb-4">404</h1>
+                    <p class="text-4xl font-bold text-white mb-2">Page Not Found</p>
+                    <p class="text-gray-400 text-lg">Sorry, the page you're looking for doesn't exist.</p>
+                </div>
+
+                <!-- Error Details -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-8 max-w-md mx-auto">
+                    <p class="text-gray-300 mb-6">
+                        The page may have been moved, deleted, or you may not have permission to access it.
+                    </p>
+                    <div class="space-y-3">
+                        <a href="{% url 'dashboard:index' %}" class="block w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
+                            Go to Dashboard
+                        </a>
+                        <a href="javascript:history.back()" class="block w-full px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition">
+                            Go Back
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Helpful Links -->
+                <div class="text-sm text-gray-400">
+                    <p class="mb-4">Need help? Try visiting:</p>
+                    <div class="space-y-2">
+                        <a href="{% url 'tasks:task-board' %}" class="text-blue-400 hover:text-blue-300 block">
+                            📋 Kanban Board
+                        </a>
+                        <a href="{% url 'mentor:feedback-list' %}" class="text-blue-400 hover:text-blue-300 block">
+                            📚 Mentor Feedback
+                        </a>
+                        <a href="{% url 'investor:investor-list' %}" class="text-blue-400 hover:text-blue-300 block">
+                            💰 Investor Dashboard
+                        </a>
+                        <a href="{% url 'progress:progress' %}" class="text-blue-400 hover:text-blue-300 block">
+                            📈 Progress Overview
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-gray-400">
+                <p>&copy; 2026 Startup Garage. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

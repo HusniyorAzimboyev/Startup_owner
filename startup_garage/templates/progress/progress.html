@@ -168,64 +168,65 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 <script>
-    const chartData = {{ chart_data|safe }};
-    
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartData.map(d => d.date),
-            datasets: [
-                {
-                    label: 'Completion Rate %',
-                    data: chartData.map(d => d.rate),
-                    backgroundColor: [
-                        '#3B82F6',
-                        '#3B82F6',
-                        '#3B82F6',
-                        '#3B82F6',
-                        '#3B82F6',
-                        '#3B82F6',
-                        '#3B82F6',
-                    ],
-                    borderColor: '#1F2937',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    hoverBackgroundColor: '#2563EB',
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    display: false,
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        color: '#9CA3AF',
-                        callback: function(value) {
-                            return value + '%';
+    // Wait for DOM to be ready before initializing chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const raw = {{ weekly_data|safe }};
+        const chartElement = document.getElementById('progressChart');
+        
+        // Check if chart element exists and has data
+        if (chartElement && raw && raw.length > 0) {
+            const labels = raw.map(d => d.date);
+            const data = raw.map(d => d.rate);
+            const ctx = chartElement.getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Completion Rate %',
+                            data: data,
+                            backgroundColor: '#3B82F6',
+                            borderColor: '#1F2937',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            hoverBackgroundColor: '#2563EB',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false,
                         }
                     },
-                    grid: {
-                        color: '#374151',
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#9CA3AF',
-                    },
-                    grid: {
-                        display: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                color: '#9CA3AF',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: '#374151',
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#9CA3AF',
+                            },
+                            grid: {
+                                display: false,
+                            }
+                        }
                     }
                 }
-            }
+            });
         }
     });
 </script>

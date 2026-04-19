@@ -6,15 +6,19 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.db import IntegrityError
 from datetime import timedelta
+import logging
 from .models import Investor, Investment, PitchDeck, InvestorMeeting
 from .forms import InvestorMeetingForm, PitchDeckForm
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
 def investor_list(request):
-    """List all investors"""
-    investors = Investor.objects.filter(verified=True)
+    """List all verified investors with optimized queries"""
+    investors = Investor.objects.filter(verified=True).select_related('user')
     context = {
         'investors': investors,
     }
@@ -24,7 +28,10 @@ def investor_list(request):
 @login_required
 def investor_detail(request, pk):
     """Investor detail view"""
-    investor = Investor.objects.get(pk=pk)
+    investor = get_object_or_404(
+        Investor.objects.select_related('user'),
+        pk=pk
+    )
     context = {
         'investor': investor,
     }
@@ -39,22 +46,29 @@ class InvestorDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         
         # Get or create pitch deck
-        pitch_deck, created = PitchDeck.objects.get_or_create(
-            user=self.request.user
-        )
+        try:
+            pitch_deck, created = PitchDeck.objects.get_or_create(
+                user=self.request.user
+            )
+        except IntegrityError:
+            logger.exception(f'IntegrityError creating pitch deck for user {self.request.user.id}')
+            pitch_deck = PitchDeck.objects.get(user=self.request.user)
         
-        # Get all meetings for the user
-        all_meetings = InvestorMeeting.objects.filter(user=self.request.user)
+        # Get all meetings for the user with optimized queries
+        all_meetings = InvestorMeeting.objects.filter(
+            user=self.request.user
+        ).select_related('investor', 'investor__user')
         
         # Separate upcoming and past meetings
         now = timezone.now()
         upcoming_meetings = all_meetings.filter(meeting_date__gt=now).order_by('meeting_date')
         past_meetings = all_meetings.filter(meeting_date__lte=now).order_by('-meeting_date')
         
-        # Calculate overall readiness score
+        # Calculate overall readiness score based on pitch deck status and completed meetings
         pitch_score = pitch_deck.readiness_score()
-        meeting_score = min(len(all_meetings) * 10, 50)  # Max 50 points from meetings
-        overall_readiness = min(pitch_score + meeting_score, 100)
+        completed_meetings = all_meetings.filter(status='completed').count()
+        meeting_bonus = min(completed_meetings * 10, 30)  # Max +30 from completed meetings
+        overall_readiness = min(pitch_score + meeting_bonus, 100)
         
         context.update({
             'pitch_deck': pitch_deck,

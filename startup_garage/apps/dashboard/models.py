@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db.models import Value
+from django.utils import timezone
 
 
 class StartupProfile(models.Model):
@@ -22,16 +22,16 @@ class StartupProfile(models.Model):
     stage = models.CharField(
         max_length=20,
         choices=STAGE_CHOICES,
-        default='idea'
+        db_default='idea'
     )
-    kpi_users = models.IntegerField(default=0)
+    kpi_users = models.IntegerField(db_default=0)
     kpi_revenue = models.DecimalField(
         max_digits=12,
         decimal_places=2,
-        default=0
+        db_default=0
     )
     kpi_traction = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
