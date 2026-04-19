@@ -10,6 +10,7 @@ urlpatterns = [
     # Investor Directory
     path('list/', views.investor_list, name='list'),
     path('<int:pk>/', views.investor_detail, name='detail'),
+    path('<int:investor_id>/meetings/', views.investor_meetings, name='meetings'),
     
     # Investor Messaging
     path('<int:investor_id>/chat/', views.investor_chat, name='chat'),

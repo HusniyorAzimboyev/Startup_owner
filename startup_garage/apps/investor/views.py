@@ -33,8 +33,20 @@ def investor_detail(request, pk):
         Investor.objects.select_related('user'),
         pk=pk
     )
+    
+    # Get upcoming meetings with this investor for current user
+    from django.utils import timezone
+    upcoming_meetings = InvestorMeeting.objects.filter(
+        user=request.user,
+        investor_name=investor.user.get_full_name(),
+        status='scheduled',
+        meeting_date__gte=timezone.now()
+    ).order_by('meeting_date')[:3]
+    
     context = {
         'investor': investor,
+        'upcoming_meetings': upcoming_meetings,
+        'upcoming_count': upcoming_meetings.count(),
     }
     return render(request, 'investor/investor_detail.html', context)
 
@@ -58,7 +70,7 @@ class InvestorDashboardView(LoginRequiredMixin, TemplateView):
         # Get all meetings for the user with optimized queries
         all_meetings = InvestorMeeting.objects.filter(
             user=self.request.user
-        ).select_related('investor', 'investor__user')
+        ).order_by('-meeting_date')
         
         # Separate upcoming and past meetings
         now = timezone.now()
@@ -186,3 +198,41 @@ def send_investor_message(request, investor_id):
     except Exception as e:
         logger.exception(f'Error sending message to investor {investor_id}: {e}')
         return JsonResponse({'error': 'Failed to send message'}, status=500)
+
+
+@login_required
+def investor_meetings(request, investor_id):
+    """View all meetings with a specific investor"""
+    from django.utils import timezone
+    
+    investor = get_object_or_404(
+        Investor.objects.select_related('user'),
+        pk=investor_id
+    )
+    
+    # Get all meetings with this investor for current user
+    meetings = InvestorMeeting.objects.filter(
+        user=request.user,
+        investor_name=investor.user.get_full_name()
+    ).order_by('-meeting_date')
+    
+    # Organize meetings by status
+    upcoming_meetings = meetings.filter(
+        status='scheduled',
+        meeting_date__gte=timezone.now()
+    )
+    past_meetings = meetings.filter(
+        status__in=['completed', 'followup']
+    )
+    declined_meetings = meetings.filter(
+        status='passed'
+    )
+    
+    context = {
+        'investor': investor,
+        'upcoming_meetings': upcoming_meetings,
+        'past_meetings': past_meetings,
+        'declined_meetings': declined_meetings,
+        'total_meetings': meetings.count(),
+    }
+    return render(request, 'investor/investor_meetings.html', context)

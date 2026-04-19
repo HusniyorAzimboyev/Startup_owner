@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}{{ investor.user.get_full_name }}'s Meetings - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Back Link -->
+    <div>
+        <a href="{% url 'investor:detail' investor.pk %}" class="text-blue-400 hover:text-blue-300 transition">
+            ← Back to {{ investor.user.get_full_name }}
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+        <div class="flex flex-col md:flex-row items-start gap-6 md:items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold text-white">📅 Meetings with {{ investor.user.get_full_name|default:investor.user.username }}</h1>
+                <p class="text-gray-400 mt-2">Total Meetings: <span class="text-blue-400 font-semibold">{{ total_meetings }}</span></p>
+            </div>
+            <a href="{% url 'investor:meeting-create' %}" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium">
+                + Schedule New Meeting
+            </a>
+        </div>
+    </div>
+
+    <!-- Upcoming Meetings -->
+    {% if upcoming_meetings %}
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-green-900 to-green-800 px-8 py-4 border-b border-gray-800">
+                <h2 class="text-2xl font-bold text-white">✅ Upcoming Meetings</h2>
+                <p class="text-gray-300 text-sm mt-1">{{ upcoming_meetings.count }} meeting{{ upcoming_meetings.count|pluralize }}</p>
+            </div>
+            <div class="divide-y divide-gray-800">
+                {% for meeting in upcoming_meetings %}
+                    <div class="p-6 hover:bg-gray-800 transition">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <!-- Meeting Info -->
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-white">Meeting with {{ meeting.investor_name }}</h3>
+                                    <span class="px-2 py-1 text-xs bg-green-900 text-green-200 rounded-full font-medium">
+                                        Scheduled
+                                    </span>
+                                </div>
+                                
+                                <!-- Company -->
+                                {% if meeting.company %}
+                                    <div class="text-sm text-gray-400 mb-3">
+                                        <span>🏢 Company: <span class="text-gray-200">{{ meeting.company }}</span></span>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Date & Time -->
+                                <div class="flex flex-wrap gap-4 text-sm text-gray-400 mb-3">
+                                    <div class="flex items-center gap-1">
+                                        <span>📅</span>
+                                        <span>{{ meeting.meeting_date|date:"F d, Y" }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span>⏰</span>
+                                        <span>{{ meeting.meeting_date|time:"h:i A" }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                {% if meeting.notes %}
+                                    <div class="mt-3 text-gray-300 text-sm">
+                                        <p>{{ meeting.notes }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex gap-2">
+                                <a href="{% url 'investor:meeting-update' meeting.pk %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition">
+                                    Edit
+                                </a>
+                                <a href="{% url 'investor:meeting-delete' meeting.pk %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+            <div class="text-center py-8">
+                <p class="text-gray-400 text-lg">No upcoming meetings scheduled</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Past Meetings -->
+    {% if past_meetings %}
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-8 py-4 border-b border-gray-800">
+                <h2 class="text-2xl font-bold text-white">✔️ Past Meetings</h2>
+                <p class="text-gray-300 text-sm mt-1">{{ past_meetings.count }} meeting{{ past_meetings.count|pluralize }}</p>
+            </div>
+            <div class="divide-y divide-gray-800">
+                {% for meeting in past_meetings %}
+                    <div class="p-6 hover:bg-gray-800 transition">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <!-- Meeting Info -->
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-white">Meeting with {{ meeting.investor_name }}</h3>
+                                    <span class="px-2 py-1 text-xs {% if meeting.status == 'completed' %}bg-blue-900 text-blue-200{% else %}bg-yellow-900 text-yellow-200{% endif %} rounded-full font-medium">
+                                        {{ meeting.get_status_display }}
+                                    </span>
+                                </div>
+                                
+                                <!-- Company -->
+                                {% if meeting.company %}
+                                    <div class="text-sm text-gray-400 mb-3">
+                                        <span>🏢 Company: <span class="text-gray-200">{{ meeting.company }}</span></span>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Date & Time -->
+                                <div class="flex flex-wrap gap-4 text-sm text-gray-400 mb-3">
+                                    <div class="flex items-center gap-1">
+                                        <span>📅</span>
+                                        <span>{{ meeting.meeting_date|date:"F d, Y" }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span>⏰</span>
+                                        <span>{{ meeting.meeting_date|time:"h:i A" }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                {% if meeting.notes %}
+                                    <div class="mt-3 text-gray-300 text-sm">
+                                        <p>{{ meeting.notes }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex gap-2">
+                                <a href="{% url 'investor:meeting-update' meeting.pk %}" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm rounded-lg transition">
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Declined Meetings -->
+    {% if declined_meetings %}
+        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-red-900 to-red-800 px-8 py-4 border-b border-gray-800">
+                <h2 class="text-2xl font-bold text-white">❌ Declined Meetings</h2>
+                <p class="text-gray-300 text-sm mt-1">{{ declined_meetings.count }} meeting{{ declined_meetings.count|pluralize }}</p>
+            </div>
+            <div class="divide-y divide-gray-800">
+                {% for meeting in declined_meetings %}
+                    <div class="p-6 hover:bg-gray-800 transition opacity-75">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <!-- Meeting Info -->
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-white">Meeting with {{ meeting.investor_name }}</h3>
+                                    <span class="px-2 py-1 text-xs bg-red-900 text-red-200 rounded-full font-medium">
+                                        Passed
+                                    </span>
+                                </div>
+                                
+                                <!-- Company -->
+                                {% if meeting.company %}
+                                    <div class="text-sm text-gray-400 mb-3">
+                                        <span>🏢 Company: <span class="text-gray-200">{{ meeting.company }}</span></span>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Date & Time -->
+                                <div class="flex flex-wrap gap-4 text-sm text-gray-400 mb-3">
+                                    <div class="flex items-center gap-1">
+                                        <span>📅</span>
+                                        <span>{{ meeting.meeting_date|date:"F d, Y" }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span>⏰</span>
+                                        <span>{{ meeting.meeting_date|time:"h:i A" }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                {% if meeting.notes %}
+                                    <div class="mt-3 text-gray-300 text-sm">
+                                        <p>{{ meeting.notes }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if not upcoming_meetings and not past_meetings and not declined_meetings %}
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
+            <div class="text-center py-12">
+                <p class="text-gray-400 text-lg mb-4">No meetings scheduled</p>
+                <p class="text-gray-500 text-sm mb-6">Start by scheduling a meeting with this investor</p>
+                <a href="{% url 'investor:meeting-create' %}" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium">
+                    Schedule Meeting
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

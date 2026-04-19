@@ -46,9 +46,9 @@
 
             <!-- Action Button -->
             {% if investor.verified %}
-                <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium">
+                <a href="{% url 'investor:meeting-create' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium">
                     Schedule Meeting
-                </button>
+                </a>
             {% endif %}
         </div>
     </div>
@@ -66,6 +66,52 @@
 
         <!-- Right Column (1 col - Sidebar) -->
         <div class="lg:col-span-1 space-y-6">
+            <!-- Upcoming Meetings Card -->
+            {% if upcoming_meetings %}
+                <div class="bg-gradient-to-br from-blue-900 to-blue-800 border border-blue-700 rounded-xl p-6 text-white">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-2xl">📅</span>
+                                <h3 class="text-lg font-bold">Upcoming Meetings</h3>
+                            </div>
+                            <p class="text-blue-100 text-sm">{{ upcoming_count }} scheduled</p>
+                        </div>
+                        <a href="{% url 'investor:meetings' investor.pk %}" class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition font-semibold text-sm">
+                            View All
+                        </a>
+                    </div>
+
+                    <!-- First Upcoming Meeting -->
+                    <div class="bg-black bg-opacity-20 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <p class="text-blue-100 text-xs font-semibold uppercase tracking-wide mb-1">Next Meeting</p>
+                                <h4 class="text-lg font-bold text-white">{{ investor.user.get_full_name|default:investor.user.username }}</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span>📅</span>
+                                <span>{{ upcoming_meetings.0.meeting_date|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span>⏰</span>
+                                <span>{{ upcoming_meetings.0.meeting_date|time:"H:i" }}</span>
+                            </div>
+                        </div>
+
+                        {% if upcoming_meetings.0.company %}
+                            <div class="mt-3 pt-3 border-t border-blue-700">
+                                <p class="text-blue-100 text-xs font-semibold uppercase tracking-wide mb-1">Company</p>
+                                <p class="text-white">{{ upcoming_meetings.0.company }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
             <!-- Quick Info -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
                 <h3 class="text-lg font-semibold text-white">📋 Details</h3>
@@ -110,10 +156,18 @@
             <!-- Actions -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-2">
                 {% if investor.verified %}
-                    <button class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm font-medium">
+                    <a href="{% url 'investor:meeting-create' %}" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-center text-sm font-medium block">
                         Schedule Meeting
-                    </button>
+                    </a>
+                    
+                    <a href="{% url 'investor:chat' investor.pk %}" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-center text-sm font-medium block">
+                        Reach Out
+                    </a>
                 {% endif %}
+
+                <a href="{% url 'investor:meetings' investor.pk %}" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-center text-sm font-medium block">
+                    📅 View All Meetings
+                </a>
 
                 <a href="{% url 'investor:list' %}" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-center text-sm font-medium">
                     Back to List
