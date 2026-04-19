@@ -57,7 +57,7 @@ class InvestorDashboardView(LoginRequiredMixin, TemplateView):
         # Get all meetings for the user with optimized queries
         all_meetings = InvestorMeeting.objects.filter(
             user=self.request.user
-        ).select_related('investor', 'investor__user')
+        ).order_by('meeting_date')
         
         # Separate upcoming and past meetings
         now = timezone.now()
@@ -67,17 +67,24 @@ class InvestorDashboardView(LoginRequiredMixin, TemplateView):
         # Calculate overall readiness score based on pitch deck status and completed meetings
         pitch_score = pitch_deck.readiness_score()
         completed_meetings = all_meetings.filter(status='completed').count()
+        completed_followups = all_meetings.filter(status='followup').count()
         meeting_bonus = min(completed_meetings * 10, 30)  # Max +30 from completed meetings
         overall_readiness = min(pitch_score + meeting_bonus, 100)
+        total_meetings = all_meetings.count()
+        readiness_score = overall_readiness  # Alias for template
         
         context.update({
             'pitch_deck': pitch_deck,
             'upcoming_meetings': upcoming_meetings,
             'past_meetings': past_meetings,
             'overall_readiness': overall_readiness,
+            'readiness_score': readiness_score,
             'pitch_score': pitch_score,
             'meeting_count': all_meetings.count(),
             'upcoming_count': upcoming_meetings.count(),
+            'completed_meetings': completed_meetings,
+            'completed_followups': completed_followups,
+            'total_meetings': total_meetings,
         })
         
         return context

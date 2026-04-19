@@ -28,9 +28,7 @@
                 </label>
                 {{ form.title }}
                 {% if form.title.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.title.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.title.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -41,9 +39,7 @@
                 </label>
                 {{ form.description }}
                 {% if form.description.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.description.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.description.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -56,9 +52,7 @@
                     </label>
                     {{ form.status }}
                     {% if form.status.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.status.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.status.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -69,9 +63,7 @@
                     </label>
                     {{ form.priority }}
                     {% if form.priority.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.priority.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.priority.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -83,18 +75,16 @@
                 </label>
                 {{ form.due_date }}
                 {% if form.due_date.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.due_date.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.due_date.errors.0 }}</div>
                 {% endif %}
             </div>
 
             <!-- Button Group -->
             <div class="flex gap-4 pt-4">
-                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-150 ease">
                     {{ action }}
                 </button>
-                <a href="{% url 'tasks:task-board' %}" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 text-center">
+                <a href="{% url 'tasks:task-board' %}" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-150 ease text-center">
                     Cancel
                 </a>
             </div>

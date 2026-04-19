@@ -28,9 +28,7 @@
                 </label>
                 {{ form.name }}
                 {% if form.name.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.name.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.name.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -46,9 +44,7 @@
                 </select>
                 <p class="text-gray-500 text-sm mt-1">Where is your startup in its journey?</p>
                 {% if form.stage.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.stage.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.stage.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -60,9 +56,7 @@
                 {{ form.kpi_users }}
                 <p class="text-gray-500 text-sm mt-1">Number of active users on your platform</p>
                 {% if form.kpi_users.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.kpi_users.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.kpi_users.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -74,9 +68,7 @@
                 {{ form.kpi_revenue }}
                 <p class="text-gray-500 text-sm mt-1">Total revenue generated</p>
                 {% if form.kpi_revenue.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.kpi_revenue.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.kpi_revenue.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -88,18 +80,16 @@
                 {{ form.kpi_traction }}
                 <p class="text-gray-500 text-sm mt-1">Describe recent wins, partnerships, press coverage, etc.</p>
                 {% if form.kpi_traction.errors %}
-                    <p class="mt-2 text-sm text-red-400">
-                        {% for error in form.kpi_traction.errors %}{{ error }}{% endfor %}
-                    </p>
+                    <div class="field-error">{{ form.kpi_traction.errors.0 }}</div>
                 {% endif %}
             </div>
 
             <!-- Button Group -->
             <div class="flex gap-4 pt-4">
-                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-150 ease">
                     Save Changes
                 </button>
-                <a href="{% url 'dashboard:index' %}" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 text-center">
+                <a href="{% url 'dashboard:index' %}" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-150 ease text-center">
                     Cancel
                 </a>
             </div>

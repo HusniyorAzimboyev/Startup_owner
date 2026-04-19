@@ -1,290 +1,402 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Tasks - Kanban Board - Startup Garage{% endblock %}
 
 {% block content %}
-<style>
-    /* Drag and drop visual feedback */
-    [data-status].drag-over {
-        background-color: rgba(59, 130, 246, 0.1) !important;
-        border-color: #3b82f6 !important;
-        border-width: 2px !important;
-    }
-
-    [draggable="true"].dragging {
-        opacity: 0.5;
-        background-color: rgba(59, 130, 246, 0.2);
-        border-color: #3b82f6;
-    }
-</style>
-
-<div class="space-y-6">
+<div style="display: grid; grid-template-columns: 1fr; gap: var(--space-xl); margin-bottom: var(--space-xl);">
     <!-- Header -->
-    <div class="flex justify-between items-center">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <h1 class="text-4xl font-bold text-white">📋 Kanban Board</h1>
-            <p class="text-gray-400 mt-2">Drag and drop tasks to organize your work</p>
+            <h1 style="font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0;">📋 Kanban Board</h1>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 8px 0 0;">Organize tasks by status and drag to update</p>
         </div>
-        <a href="{% url 'tasks:task-create' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-            + New Task
+        <a href="{% url 'tasks:task-create' %}" style="display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: var(--accent); color: white; border-radius: var(--radius-md); text-decoration: none; font-size: 13px; font-weight: 600; transition: all var(--transition-fast); cursor: pointer;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <span>+</span> New Task
         </a>
-    </div>
-
-    <!-- Kanban Board (data attribute for task move URL) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-task-move-url="{% url 'tasks:task-move' 0 %}">
-        <!-- To Do Column -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
-            <!-- Column Header -->
-            <div class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
-                <div>
-                    <h2 class="text-lg font-semibold text-white">📝 To Do</h2>
-                </div>
-                <span class="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-sm font-semibold">
-                    {{ status_counts.todo|default:"0" }}
-                </span>
-            </div>
-
-            <!-- Tasks Container -->
-            <div class="flex-1 p-4 overflow-y-auto space-y-3 max-h-[600px]" 
-                 data-status="todo" 
-                 data-column-name="To Do"
-                 ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)"
-                 ondragleave="handleDragLeave(event)">
-                {% for task in todo_tasks %}
-                    {% include "tasks/task_card.html" with task=task %}
-                {% empty %}
-                    <p class="text-gray-500 text-center py-8">No tasks yet</p>
-                {% endfor %}
-            </div>
-
-            <!-- Add Button -->
-            <div class="border-t border-gray-800 p-4">
-                <a href="{% url 'tasks:task-create' %}" class="w-full py-2 text-center text-gray-400 hover:text-white hover:bg-gray-800 rounded transition">
-                    + Add Task
-                </a>
-            </div>
-        </div>
-
-        <!-- In Progress Column -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
-            <!-- Column Header -->
-            <div class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
-                <div>
-                    <h2 class="text-lg font-semibold text-white">⚡ In Progress</h2>
-                </div>
-                <span class="px-3 py-1 bg-blue-900 text-blue-300 rounded-full text-sm font-semibold">
-                    {{ status_counts.in_progress|default:"0" }}
-                </span>
-            </div>
-
-            <!-- Tasks Container -->
-            <div class="flex-1 p-4 overflow-y-auto space-y-3 max-h-[600px]" 
-                 data-status="in_progress" 
-                 data-column-name="In Progress"
-                 ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)"
-                 ondragleave="handleDragLeave(event)">
-                {% for task in in_progress_tasks %}
-                    {% include "tasks/task_card.html" with task=task %}
-                {% empty %}
-                    <p class="text-gray-500 text-center py-8">No tasks yet</p>
-                {% endfor %}
-            </div>
-
-            <!-- Add Button -->
-            <div class="border-t border-gray-800 p-4">
-                <a href="{% url 'tasks:task-create' %}" class="w-full py-2 text-center text-gray-400 hover:text-white hover:bg-gray-800 rounded transition">
-                    + Add Task
-                </a>
-            </div>
-        </div>
-
-        <!-- Done Column -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
-            <!-- Column Header -->
-            <div class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
-                <div>
-                    <h2 class="text-lg font-semibold text-white">✅ Done</h2>
-                </div>
-                <span class="px-3 py-1 bg-green-900 text-green-300 rounded-full text-sm font-semibold">
-                    {{ status_counts.done|default:"0" }}
-                </span>
-            </div>
-
-            <!-- Tasks Container -->
-            <div class="flex-1 p-4 overflow-y-auto space-y-3 max-h-[600px]" 
-                 data-status="done" 
-                 data-column-name="Done"
-                 ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)"
-                 ondragleave="handleDragLeave(event)">
-                {% for task in done_tasks %}
-                    {% include "tasks/task_card.html" with task=task %}
-                {% empty %}
-                    <p class="text-gray-500 text-center py-8">No tasks yet</p>
-                {% endfor %}
-            </div>
-
-            <!-- Add Button -->
-            <div class="border-t border-gray-800 p-4">
-                <a href="{% url 'tasks:task-create' %}" class="w-full py-2 text-center text-gray-400 hover:text-white hover:bg-gray-800 rounded transition">
-                    + Add Task
-                </a>
-            </div>
-        </div>
     </div>
 </div>
 
-{% endblock %}
+<!-- Kanban Board -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;" data-task-move-url="{% url 'tasks:task-move' 0 %}">
 
-{% block extra_js %}
+    <!-- TO DO COLUMN -->
+    <div style="display: flex; flex-direction: column; gap: 0;">
+        <!-- Column Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">📝 To Do</h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent-light); font-weight: 600;">
+                    {{ status_counts.todo|default:"0" }}
+                </div>
+                <a href="{% url 'tasks:task-create' %}" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 16px; transition: all var(--transition-fast); cursor: pointer; background: transparent;" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">+</a>
+            </div>
+        </div>
+
+        <!-- Column Body -->
+        <div style="background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px; min-height: 400px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; transition: all var(--transition-fast);" 
+             data-status="todo" 
+             data-column-name="To Do"
+             ondrop="handleDrop(event)" 
+             ondragover="handleDragOver(event)"
+             ondragleave="handleDragLeave(event)">
+            
+            {% for task in todo_tasks %}
+            <!-- Task Card -->
+            <div draggable="true" 
+                 data-task-id="{{ task.id }}"
+                 style="background: var(--bg-elevated); border: 0.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; cursor: grab; transition: all var(--transition-fast);"
+                 ondragstart="handleDragStart(event)"
+                 ondragend="handleDragEnd(event)"
+                 onmouseover="this.style.borderColor='var(--border)'; this.style.transform='translateY(-2px)'"
+                 onmouseout="this.style.borderColor='var(--border-subtle)'; this.style.transform='translateY(0)'">
+                
+                <!-- Top Row: Title + Priority -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                    <a href="{% url 'tasks:task-update' task.id %}" style="font-size: 13px; font-weight: 500; color: var(--text-primary); text-decoration: none; flex: 1; transition: color var(--transition-fast);" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">{{ task.title }}</a>
+                    <!-- Priority Badge -->
+                    <span style="font-size: 10px; padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+                        {% if task.priority == 'high' %}
+                            background: #ef444415; color: #ef4444;
+                        {% elif task.priority == 'medium' %}
+                            background: #f59e0b15; color: #f59e0b;
+                        {% else %}
+                            background: #10b98115; color: #10b981;
+                        {% endif %}
+                    ">{{ task.get_priority_display }}</span>
+                </div>
+
+                <!-- Bottom Row: Due Date + Drag Handle -->
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
+                    {% if task.due_date %}
+                        <span>📅 {{ task.due_date|date:"M d" }}</span>
+                    {% else %}
+                        <span style="opacity: 0.5;">No due date</span>
+                    {% endif %}
+                    <!-- Drag Handle Icon -->
+                    <svg style="width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 11-4 0 2 2 0 014 0zM10 12a2 2 0 11-4 0 2 2 0 014 0zM10 18a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Empty State -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 12px;">
+                <div style="border: 1px dashed var(--border); border-radius: 8px; padding: 24px; text-align: center;">
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">No tasks yet</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- IN PROGRESS COLUMN -->
+    <div style="display: flex; flex-direction: column; gap: 0;">
+        <!-- Column Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">⚡ In Progress</h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent-light); font-weight: 600;">
+                    {{ status_counts.in_progress|default:"0" }}
+                </div>
+                <a href="{% url 'tasks:task-create' %}" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 16px; transition: all var(--transition-fast); cursor: pointer; background: transparent;" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">+</a>
+            </div>
+        </div>
+
+        <!-- Column Body -->
+        <div style="background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px; min-height: 400px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; transition: all var(--transition-fast);" 
+             data-status="in_progress" 
+             data-column-name="In Progress"
+             ondrop="handleDrop(event)" 
+             ondragover="handleDragOver(event)"
+             ondragleave="handleDragLeave(event)">
+            
+            {% for task in in_progress_tasks %}
+            <!-- Task Card -->
+            <div draggable="true" 
+                 data-task-id="{{ task.id }}"
+                 style="background: var(--bg-elevated); border: 0.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; cursor: grab; transition: all var(--transition-fast);"
+                 ondragstart="handleDragStart(event)"
+                 ondragend="handleDragEnd(event)"
+                 onmouseover="this.style.borderColor='var(--border)'; this.style.transform='translateY(-2px)'"
+                 onmouseout="this.style.borderColor='var(--border-subtle)'; this.style.transform='translateY(0)'">
+                
+                <!-- Top Row: Title + Priority -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                    <a href="{% url 'tasks:task-update' task.id %}" style="font-size: 13px; font-weight: 500; color: var(--text-primary); text-decoration: none; flex: 1; transition: color var(--transition-fast);" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">{{ task.title }}</a>
+                    <!-- Priority Badge -->
+                    <span style="font-size: 10px; padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+                        {% if task.priority == 'high' %}
+                            background: #ef444415; color: #ef4444;
+                        {% elif task.priority == 'medium' %}
+                            background: #f59e0b15; color: #f59e0b;
+                        {% else %}
+                            background: #10b98115; color: #10b981;
+                        {% endif %}
+                    ">{{ task.get_priority_display }}</span>
+                </div>
+
+                <!-- Bottom Row: Due Date + Drag Handle -->
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
+                    {% if task.due_date %}
+                        <span>📅 {{ task.due_date|date:"M d" }}</span>
+                    {% else %}
+                        <span style="opacity: 0.5;">No due date</span>
+                    {% endif %}
+                    <!-- Drag Handle Icon -->
+                    <svg style="width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 11-4 0 2 2 0 014 0zM10 12a2 2 0 11-4 0 2 2 0 014 0zM10 18a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Empty State -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 12px;">
+                <div style="border: 1px dashed var(--border); border-radius: 8px; padding: 24px; text-align: center;">
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">No tasks yet</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+        </div>
+
+    <!-- DONE COLUMN -->
+    <div style="display: flex; flex-direction: column; gap: 0;">
+        <!-- Column Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">✅ Done</h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent-light); font-weight: 600;">
+                    {{ status_counts.done|default:"0" }}
+                </div>
+                <a href="{% url 'tasks:task-create' %}" style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 16px; transition: all var(--transition-fast); cursor: pointer; background: transparent;" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">+</a>
+            </div>
+        </div>
+
+        <!-- Column Body -->
+        <div style="background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px; min-height: 400px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; transition: all var(--transition-fast);" 
+             data-status="done" 
+             data-column-name="Done"
+             ondrop="handleDrop(event)" 
+             ondragover="handleDragOver(event)"
+             ondragleave="handleDragLeave(event)">
+            
+            {% for task in done_tasks %}
+            <!-- Task Card (Done - Strikethrough) -->
+            <div draggable="true" 
+                 data-task-id="{{ task.id }}"
+                 style="background: var(--bg-elevated); border: 0.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; cursor: grab; transition: all var(--transition-fast); opacity: 0.7;"
+                 ondragstart="handleDragStart(event)"
+                 ondragend="handleDragEnd(event)"
+                 onmouseover="this.style.borderColor='var(--border)'; this.style.transform='translateY(-2px)'; this.style.opacity='1'"
+                 onmouseout="this.style.borderColor='var(--border-subtle)'; this.style.transform='translateY(0)'; this.style.opacity='0.7'">
+                
+                <!-- Top Row: Title + Priority -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                    <a href="{% url 'tasks:task-update' task.id %}" style="font-size: 13px; font-weight: 500; color: var(--text-muted); text-decoration: line-through; flex: 1; transition: color var(--transition-fast);" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">{{ task.title }}</a>
+                    <!-- Priority Badge -->
+                    <span style="font-size: 10px; padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; opacity: 0.6;
+                        {% if task.priority == 'high' %}
+                            background: #ef444415; color: #ef4444;
+                        {% elif task.priority == 'medium' %}
+                            background: #f59e0b15; color: #f59e0b;
+                        {% else %}
+                            background: #10b98115; color: #10b981;
+                        {% endif %}
+                    ">{{ task.get_priority_display }}</span>
+                </div>
+
+                <!-- Bottom Row: Due Date + Drag Handle -->
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); opacity: 0.7;">
+                    {% if task.due_date %}
+                        <span>📅 {{ task.due_date|date:"M d" }}</span>
+                    {% else %}
+                        <span style="opacity: 0.5;">No due date</span>
+                    {% endif %}
+                    <!-- Drag Handle Icon -->
+                    <svg style="width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 11-4 0 2 2 0 014 0zM10 12a2 2 0 11-4 0 2 2 0 014 0zM10 18a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Empty State -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 12px;">
+                <div style="border: 1px dashed var(--border); border-radius: 8px; padding: 24px; text-align: center;">
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">No tasks yet</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
 <script>
-    // Get CSRF token from cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// Get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+// Handle drag start
+function handleDragStart(event) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', this.innerHTML);
+    this.classList.add('dragging');
+    this.style.opacity = '0.4';
+}
+
+// Handle drag end
+function handleDragEnd(event) {
+    this.classList.remove('dragging');
+    this.style.opacity = '1';
+    // Remove all drag-over highlights
+    document.querySelectorAll('[data-status]').forEach(container => {
+        container.style.borderColor = 'var(--border)';
+        container.style.background = 'var(--bg-surface)';
+    });
+}
+
+// Handle drag over
+function handleDragOver(event) {
+    if (event.preventDefault) {
+        event.preventDefault();
+    }
+    event.dataTransfer.dropEffect = 'move';
+    
+    // Add visual highlight to container
+    this.style.borderColor = 'var(--accent)';
+    this.style.background = 'var(--accent-bg)';
+    return false;
+}
+
+// Handle drag leave
+function handleDragLeave(event) {
+    // Only remove highlight if dragging is leaving the container itself
+    if (event.target === this) {
+        this.style.borderColor = 'var(--border)';
+        this.style.background = 'var(--bg-surface)';
+    }
+}
+
+// Handle drop
+function handleDrop(event) {
+    if (event.stopPropagation) {
+        event.stopPropagation();
     }
 
-    const csrftoken = getCookie('csrftoken');
+    // Reset container styling
+    this.style.borderColor = 'var(--border)';
+    this.style.background = 'var(--bg-surface)';
 
-    // Handle drag start
-    function handleDragStart(e) {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML);
-        this.classList.add('dragging');
+    const taskElement = document.querySelector('[draggable="true"].dragging');
+    if (!taskElement) return false;
+
+    const taskId = taskElement.getAttribute('data-task-id');
+    const newStatus = this.getAttribute('data-status');
+    const oldContainer = taskElement.parentElement;
+
+    // Move element to new container (before empty state if present)
+    const emptyState = this.querySelector('div[style*="flex: 1"]');
+    if (emptyState && emptyState.textContent.includes('No tasks yet')) {
+        this.insertBefore(taskElement, emptyState);
+    } else {
+        this.insertBefore(taskElement, null);
     }
 
-    // Handle drag end
-    function handleDragEnd(e) {
-        this.classList.remove('dragging');
-        // Remove all drag-over highlights
-        document.querySelectorAll('[data-status]').forEach(container => {
-            container.classList.remove('drag-over');
-        });
-    }
+    // Build move URL from data attribute
+    const boardElement = document.querySelector('[data-task-move-url]');
+    const moveUrlTemplate = boardElement.getAttribute('data-task-move-url');
+    const taskMoveUrl = moveUrlTemplate.replace('0', taskId);
 
-    // Handle drag over
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        e.dataTransfer.dropEffect = 'move';
-        
-        // Add visual highlight to container
-        this.classList.add('drag-over');
-        return false;
-    }
-
-    // Handle drag leave
-    function handleDragLeave(e) {
-        // Only remove highlight if dragging is leaving the container itself
-        if (e.target === this) {
-            this.classList.remove('drag-over');
-        }
-    }
-
-    // Handle drop
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        }
-
-        // Remove highlight
-        this.classList.remove('drag-over');
-
-        const taskElement = document.querySelector('[draggable="true"].dragging');
-        if (!taskElement) return false;
-
-        const taskId = taskElement.getAttribute('data-task-id');
-        const newStatus = this.getAttribute('data-status');
-        const oldContainer = taskElement.parentElement;
-
-        // Move element to new container
-        this.insertBefore(taskElement, this.querySelector('p'));
-
-        // Build move URL from data attribute (replacing template variable)
-        const boardElement = document.querySelector('[data-task-move-url]');
-        const moveUrlTemplate = boardElement.getAttribute('data-task-move-url');
-        const taskMoveUrl = moveUrlTemplate.replace('0', taskId);
-
-        // Send move request to server
-        fetch(taskMoveUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({ status: newStatus })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.ok) {
-                // Update column counts
-                updateColumnCounts();
-            } else {
-                console.error('Error moving task:', data.error);
-                // Revert move on error
-                oldContainer.appendChild(taskElement);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    // Send move request to server
+    fetch(taskMoveUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            // Update column counts
+            updateColumnCounts();
+        } else {
+            console.error('Error moving task:', data.error);
             // Revert move on error
             oldContainer.appendChild(taskElement);
-        });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Revert move on error
+        oldContainer.appendChild(taskElement);
+    });
 
-        return false;
-    }
+    return false;
+}
 
-    // Update column count badges
-    function updateColumnCounts() {
-        const containers = document.querySelectorAll('[data-status]');
-        containers.forEach(container => {
-            const taskCount = container.querySelectorAll('[data-task-id]').length;
-            const badge = container.parentElement.querySelector('span');
+// Update column count badges
+function updateColumnCounts() {
+    const containers = document.querySelectorAll('[data-status]');
+    containers.forEach(container => {
+        const taskCount = container.querySelectorAll('[draggable="true"]').length;
+        const header = container.parentElement.querySelector('div[style*="margin-bottom: 12px"]');
+        if (header) {
+            const badge = header.querySelector('div[style*="width: 20px"]');
             if (badge) {
                 badge.textContent = taskCount;
             }
-        });
-    }
-
-    // Initialize drag and drop
-    function initializeDragDrop() {
-        const tasks = document.querySelectorAll('[draggable="true"]');
-        tasks.forEach(task => {
-            // Remove old listeners
-            task.removeEventListener('dragstart', handleDragStart);
-            task.removeEventListener('dragend', handleDragEnd);
-            
-            // Add new listeners
-            task.addEventListener('dragstart', handleDragStart);
-            task.addEventListener('dragend', handleDragEnd);
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeDragDrop();
+        }
     });
+}
 
-    // Re-initialize when new tasks are added (dynamic content)
-    const observer = new MutationObserver(function(mutations) {
-        initializeDragDrop();
+// Initialize drag and drop
+function initializeDragDrop() {
+    const tasks = document.querySelectorAll('[draggable="true"]');
+    tasks.forEach(task => {
+        // Remove old listeners
+        task.removeEventListener('dragstart', handleDragStart);
+        task.removeEventListener('dragend', handleDragEnd);
+        
+        // Add new listeners
+        task.addEventListener('dragstart', handleDragStart);
+        task.addEventListener('dragend', handleDragEnd);
     });
+}
 
-    observer.observe(document.querySelector('[data-task-move-url]'), {
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDragDrop();
+});
+
+// Re-initialize when new tasks are added
+const observer = new MutationObserver(function(mutations) {
+    initializeDragDrop();
+});
+
+const boardElement = document.querySelector('[data-task-move-url]');
+if (boardElement) {
+    observer.observe(boardElement, {
         childList: true,
         subtree: true
     });
+}
 </script>
+
 {% endblock %}

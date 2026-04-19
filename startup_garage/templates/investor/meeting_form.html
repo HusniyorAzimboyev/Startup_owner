@@ -38,7 +38,7 @@
                 <label for="id_investor_name" class="block text-white font-medium mb-2">{{ form.investor_name.label }}</label>
                 {{ form.investor_name }}
                 {% if form.investor_name.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.investor_name.errors.0 }}</p>
+                    <div class="field-error">{{ form.investor_name.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -48,7 +48,7 @@
                 {{ form.company }}
                 <p class="text-gray-400 text-sm mt-1">Optional - investor's company name</p>
                 {% if form.company.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.company.errors.0 }}</p>
+                    <div class="field-error">{{ form.company.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -57,7 +57,7 @@
                 <label for="id_meeting_date" class="block text-white font-medium mb-2">{{ form.meeting_date.label }}</label>
                 {{ form.meeting_date }}
                 {% if form.meeting_date.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.meeting_date.errors.0 }}</p>
+                    <div class="field-error">{{ form.meeting_date.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -66,7 +66,7 @@
                 <label for="id_status" class="block text-white font-medium mb-2">{{ form.status.label }}</label>
                 {{ form.status }}
                 {% if form.status.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.status.errors.0 }}</p>
+                    <div class="field-error">{{ form.status.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -76,20 +76,20 @@
                 {{ form.notes }}
                 <p class="text-gray-400 text-sm mt-1">Add meeting notes, outcomes, or follow-up items</p>
                 {% if form.notes.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.notes.errors.0 }}</p>
+                    <div class="field-error">{{ form.notes.errors.0 }}</div>
                 {% endif %}
             </div>
 
             <!-- Buttons -->
             <div class="flex gap-4 pt-4">
-                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-150 ease">
                     {% if form.instance.pk %}
                         Update Meeting
                     {% else %}
                         Schedule Meeting
                     {% endif %}
                 </button>
-                <a href="{% url 'investor:dashboard' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition">
+                <a href="{% url 'investor:dashboard' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-all duration-150 ease">
                     Cancel
                 </a>
             </div>

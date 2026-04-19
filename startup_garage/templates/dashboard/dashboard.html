@@ -1,344 +1,196 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Dashboard - Startup Garage{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-    <!-- Dashboard Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-4xl font-bold text-white">
-                Welcome, {{ user.username }}! 👋
-            </h1>
-            {% if startup.name %}
-                <p class="text-xl text-gray-400 mt-2">{{ startup.name }}</p>
+<div style="display: grid; grid-template-columns: 1fr; gap: var(--space-xl);">
+
+    <!-- SECTION 1: Daily Focus Card -->
+    <div style="background: var(--bg-elevated); border-left: 3px solid var(--accent); border-radius: 0; padding: 24px; overflow: hidden;">
+        <div style="margin-bottom: 20px;">
+            <p style="font-size: 10px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; margin: 0;">⚡ Today's Focus</p>
+            <h2 style="font-size: 15px; color: var(--text-primary); font-weight: 600; margin: 8px 0 0;">{{ stage_tip }}</h2>
+            {% if latest_mentor_step %}
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 8px 0 0;">{{ latest_mentor_step.next_step }}</p>
+            {% else %}
+                <p style="font-size: 12px; color: var(--text-muted); margin: 8px 0 0;">No mentor tip yet. Schedule a session to get personalized guidance.</p>
             {% endif %}
         </div>
-        <a href="{% url 'dashboard:profile_update' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-            Edit Profile
-        </a>
-    </div>
 
-    <!-- Stage Section -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-white">Startup Stage</h2>
-            <span class="px-4 py-1 rounded-full text-sm font-semibold
-                {% if startup.stage == 'idea' %}
-                    bg-blue-900 text-blue-200
-                {% elif startup.stage == 'mvp' %}
-                    bg-purple-900 text-purple-200
-                {% elif startup.stage == 'growth' %}
-                    bg-green-900 text-green-200
-                {% endif %}
-            ">
-                {{ startup.get_stage_display }}
-            </span>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="w-full bg-gray-800 rounded-full h-3">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300"
-                 style="width: {{ stage_progress }}%">
-            </div>
-        </div>
-        <p class="text-gray-400 text-sm mt-2">{{ stage_progress }}% to Growth</p>
-    </div>
-
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Users KPI -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm">Active Users</p>
-                    <p class="text-3xl font-bold text-white mt-2">{{ startup.kpi_users }}</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2h12v-2a6 6 0 00-9-5.656M15 21h6"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- Revenue KPI -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-green-500 transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm">Revenue</p>
-                    <p class="text-3xl font-bold text-white mt-2">${{ startup.kpi_revenue }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- Streak KPI -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-orange-500 transition">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm">Milestones (30d)</p>
-                    <p class="text-3xl font-bold text-white mt-2">{{ streak }}</p>
-                </div>
-                <div class="w-12 h-12 bg-orange-900 rounded-full flex items-center justify-center">
-                    <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🎯 BOOKED SESSIONS - COMPACT -->
-    {% if upcoming_sessions %}
-    <div class="bg-gradient-to-r from-green-900 to-emerald-900 border border-green-500 rounded-lg p-4">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl">✅</span>
-                <div>
-                    <p class="font-semibold text-white text-sm">Upcoming Sessions</p>
-                    <p class="text-green-300 text-xs">{{ upcoming_sessions|length }} booked</p>
-                </div>
-            </div>
-            
-            <!-- Quick Session Preview -->
-            {% for session in upcoming_sessions|slice:":1" %}
-            <div class="flex items-center gap-4 text-sm">
-                <div>
-                    <p class="text-gray-300">{{ session.mentor.user.get_full_name }}</p>
-                    <p class="text-green-300 text-xs">{{ session.scheduled_at|date:"M d, H:i" }}</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-green-300 font-bold text-lg countdown" data-time="{{ session.scheduled_at|date:'c' }}">--</p>
-                    <p class="text-gray-400 text-xs">remaining</p>
+        <!-- Focus Tasks Row -->
+        {% if top_tasks %}
+        <div style="display: flex; gap: 12px; margin-top: 16px;">
+            {% for task in top_tasks %}
+            <div style="flex: 1; background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; gap: 8px; align-items: flex-start;">
+                <input type="checkbox" 
+                    data-task-id="{{ task.id }}" 
+                    class="task-checkbox" 
+                    style="width: 16px; height: 16px; border: 1.5px solid var(--border); border-radius: 4px; cursor: pointer; margin-top: 2px; accent-color: var(--accent);"
+                    {% if task.status == 'done' %}checked{% endif %}
+                >
+                <div style="flex: 1; min-width: 0;">
+                    <p style="font-size: 12px; color: var(--text-primary); font-weight: 500; margin: 0; word-break: break-word;">{{ task.title }}</p>
+                    <p style="font-size: 11px; color: var(--text-muted); margin: 4px 0 0;">Due: {{ task.due_date|date:"M d" }}</p>
                 </div>
             </div>
             {% endfor %}
-            
-            <a href="{% url 'mentor:list' %}" class="ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition">
-                View All
-            </a>
         </div>
+        {% endif %}
     </div>
 
-    <!-- JavaScript for Live Countdown -->
-    <script>
-        function updateCountdowns() {
-            document.querySelectorAll('.countdown').forEach(el => {
-                const targetTime = new Date(el.dataset.time).getTime();
-                const now = new Date().getTime();
-                const diff = targetTime - now;
-
-                if (diff > 0) {
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                    let countdownText = '';
-                    if (days > 0) {
-                        countdownText = `${days}d ${hours}h ${minutes}m`;
-                    } else if (hours > 0) {
-                        countdownText = `${hours}h ${minutes}m ${seconds}s`;
-                    } else {
-                        countdownText = `${minutes}m ${seconds}s`;
-                    }
-
-                    el.textContent = countdownText;
-                    
-                    // Add pulse effect when less than 1 hour
-                    if (diff < 3600000 && !el.classList.contains('animate-pulse')) {
-                        el.classList.add('animate-pulse');
-                    }
-                } else {
-                    el.textContent = 'Session in progress';
-                    el.classList.add('text-yellow-300');
-                    el.classList.remove('text-green-300');
-                }
-            });
-        }
-
-        // Update immediately and then every second
-        updateCountdowns();
-        setInterval(updateCountdowns, 1000);
-    </script>
-
-    {% else %}
-    <!-- No Sessions - Show CTA -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 border-2 border-blue-500 rounded-xl p-8">
-        <!-- Background decoration -->
-        <div class="absolute top-0 right-0 w-40 h-40 bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-40 h-40 bg-purple-400 rounded-full opacity-10 blur-3xl"></div>
+    <!-- SECTION 2: KPI Cards (3 columns) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-lg);">
         
-        <!-- Content -->
-        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Section: Info -->
-            <div class="lg:col-span-2">
-                <div class="flex items-start gap-3 mb-4">
-                    <div class="text-3xl">🗓️</div>
-                    <div>
-                        <h2 class="text-3xl font-bold text-white">Connect with Expert Mentors</h2>
-                        <p class="text-blue-200 mt-2">Schedule 1-on-1 sessions during working hours (9 AM - 6 PM)</p>
-                    </div>
-                </div>
-
-                <!-- Features -->
-                <div class="grid grid-cols-2 gap-4 mt-6">
-                    <div class="flex items-center gap-2">
-                        <span class="text-green-400">✓</span>
-                        <span class="text-gray-200 text-sm">Available Mentors</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-green-400">✓</span>
-                        <span class="text-gray-200 text-sm">Real-time Availability</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-green-400">✓</span>
-                        <span class="text-gray-200 text-sm">Book Instantly</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-green-400">✓</span>
-                        <span class="text-gray-200 text-sm">Get Actionable Feedback</span>
-                    </div>
-                </div>
+        <!-- KPI: Active Users -->
+        <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
+                    <path d="M11 14v-1a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v1"/><circle cx="8.5" cy="4" r="2.5"/>
+                </svg>
+                <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Active Users</p>
             </div>
+            <p style="font-size: 26px; font-weight: 600; letter-spacing: -0.5px; color: var(--text-primary); margin: 0 0 8px;">{{ startup.kpi_users }}</p>
+            <p style="font-size: 11px; color: var(--success); margin: 0 0 12px;">↑ 12% from last month</p>
+            <div style="height: 3px; background: #1a2030; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; background: var(--accent); width: 68%; border-radius: 2px;"></div>
+            </div>
+        </div>
 
-            <!-- Right Section: CTA Button -->
-            <div class="flex flex-col justify-between">
-                <div>
-                    <p class="text-white font-semibold mb-2">Next Step:</p>
-                    <p class="text-gray-300 text-sm">Find the right mentor and book your first session now</p>
-                </div>
-                <a href="{% url 'mentor:session-planner' %}" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition duration-300 shadow-lg hover:shadow-blue-500/50 flex items-center justify-center gap-2 group">
-                    <span>🚀 Book Session Now</span>
-                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                    </svg>
-                </a>
+        <!-- KPI: Revenue -->
+        <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
+                    <circle cx="8" cy="8" r="6.5"/><path d="M8 5.5v5M6 8h4"/>
+                </svg>
+                <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Revenue</p>
+            </div>
+            <p style="font-size: 26px; font-weight: 600; letter-spacing: -0.5px; color: var(--text-primary); margin: 0 0 8px;">${{ startup.kpi_revenue|floatformat:0 }}</p>
+            <p style="font-size: 11px; color: var(--success); margin: 0 0 12px;">↑ 24% from last month</p>
+            <div style="height: 3px; background: #1a2030; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; background: var(--success); width: 45%; border-radius: 2px;"></div>
+            </div>
+        </div>
+
+        <!-- KPI: Traction -->
+        <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
+                    <path d="M1 14h14M2 9l3-4 3 2 4-6 3 4"/>
+                </svg>
+                <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Traction</p>
+            </div>
+            <p style="font-size: 26px; font-weight: 600; letter-spacing: -0.5px; color: var(--text-primary); margin: 0 0 8px;">{{ startup.kpi_traction }}</p>
+            <p style="font-size: 11px; color: var(--warning); margin: 0 0 12px;">↑ 8% from last month</p>
+            <div style="height: 3px; background: #1a2030; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; background: var(--warning); width: 52%; border-radius: 2px;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECTION 3: Stage Progress -->
+    <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <p style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 4px;">Startup Stage</p>
+                <p style="font-size: 18px; color: var(--text-primary); font-weight: 600; margin: 0;">{{ startup.name }}</p>
+            </div>
+            <div style="background: var(--accent-bg); color: var(--accent-light); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                {{ startup.get_stage_display }} · {{ stage_progress }}%
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div style="height: 8px; background: #1a2030; border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+            <div style="height: 100%; background: var(--accent); width: {{ stage_progress }}%; border-radius: 4px; transition: width var(--transition-base);"></div>
+        </div>
+
+        <!-- Stage Labels -->
+        <div style="display: flex; justify-content: space-between; gap: 12px;">
+            <div style="text-align: center; flex: 1;">
+                <p style="font-size: 12px; color: {% if startup.stage == 'idea' %}var(--accent-light){% else %}var(--text-muted){% endif %}; font-weight: 600; margin: 0;">Idea</p>
+            </div>
+            <div style="text-align: center; flex: 1;">
+                <p style="font-size: 12px; color: {% if startup.stage == 'mvp' %}var(--accent-light){% else %}var(--text-muted){% endif %}; font-weight: 600; margin: 0;">MVP</p>
+            </div>
+            <div style="text-align: center; flex: 1;">
+                <p style="font-size: 12px; color: {% if startup.stage == 'growth' %}var(--accent-light){% else %}var(--text-muted){% endif %}; font-weight: 600; margin: 0;">Growth</p>
             </div>
         </div>
     </div>
-    {% endif %}
 
-    <!-- Daily Focus Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Today's Tasks -->
-        <div class="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h3 class="text-xl font-semibold text-white mb-4">📋 Daily Focus</h3>
-
-            {% if top_tasks %}
-                <div class="space-y-3 mb-6">
-                    {% for task in top_tasks %}
-                        <div class="flex items-start gap-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-750 transition">
-                            <input type="checkbox" class="mt-1 w-4 h-4 rounded">
-                            <div class="flex-1">
-                                <p class="text-white font-medium">{{ task.title }}</p>
-                                {% if task.due_date %}
-                                    <p class="text-gray-400 text-sm">Due: {{ task.due_date|date:"M d" }}</p>
-                                {% endif %}
-                            </div>
-                            <span class="px-2 py-1 text-xs rounded
-                                {% if task.priority == 'high' %}
-                                    bg-red-900 text-red-200
-                                {% elif task.priority == 'medium' %}
-                                    bg-yellow-900 text-yellow-200
-                                {% else %}
-                                    bg-gray-700 text-gray-300
-                                {% endif %}
-                            ">
-                                {{ task.get_priority_display }}
-                            </span>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-gray-400 py-6 text-center">No tasks yet. Create one to get started!</p>
-            {% endif %}
-
-            <a href="{% url 'tasks:task-board' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-                View All Tasks →
-            </a>
+    <!-- SECTION 4: Bottom Row (2 columns) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg);">
+        
+        <!-- Streak Card -->
+        <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+            <p style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 16px; font-weight: 600;">Current Streak</p>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px;">
+                <p style="font-size: 32px; color: var(--warning); font-weight: 700; margin: 0;">🔥 {{ streak }}</p>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 16px;">days in a row</p>
+            
+            <!-- 7-Day Dots -->
+            <div style="display: flex; gap: 6px;">
+                {% for i in "0123456" %}
+                    <div style="width: 6px; height: 6px; border-radius: 50%; background: {% if i|add:0 == 6 %}var(--accent){% else %}var(--text-muted){% endif %};"></div>
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Tips & Mentor -->
-        <div class="space-y-6">
-            <!-- Stage Tip -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-                <h4 class="text-lg font-semibold text-white mb-3">💡 Focus Tip</h4>
-                <p class="text-gray-300">{{ stage_tip }}</p>
-            </div>
-
-            <!-- Mentor Tip -->
+        <!-- Latest Mentor Tip -->
+        <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+            <p style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 16px; font-weight: 600;">Latest Mentor Tip</p>
+            
             {% if latest_mentor_step %}
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 border-green-700">
-                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Next Mentor Action</h4>
-                    <p class="text-gray-300 font-medium">{{ latest_mentor_step.mentor_name }}</p>
-                    <p class="text-gray-400 text-sm mt-2 p-3 bg-gray-800 rounded">{{ latest_mentor_step.next_step }}</p>
-                    <p class="text-gray-500 text-xs mt-3">from {{ latest_mentor_step.session_date|date:"M d, Y" }}</p>
-                    <a href="{% url 'mentor:feedback-list' %}" class="text-blue-400 hover:text-blue-300 text-sm mt-3 inline-block">
-                        View All Feedback →
-                    </a>
+                <div style="background: var(--bg-surface); border: 0.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                        <div>
+                            <p style="font-size: 13px; color: var(--text-primary); font-weight: 600; margin: 0;">{{ latest_mentor_step.mentor.user.get_full_name }}</p>
+                            <p style="font-size: 11px; color: var(--text-muted); margin: 4px 0 0;">{{ latest_mentor_step.session_date|timesince }} ago</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); font-style: italic; line-height: 1.5; margin: 0;">{{ latest_mentor_step.next_step }}</p>
                 </div>
+                <a href="{% url 'mentor:feedback-list' %}" style="display: inline-block; font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600; margin-top: 12px; transition: all 0.15s ease;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--accent)'">View all →</a>
             {% else %}
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-                    <h4 class="text-lg font-semibold text-white mb-3">🎓 Get Mentor Feedback</h4>
-                    <p class="text-gray-300 text-sm mb-4">Track action items from mentor sessions.</p>
-                    <a href="{% url 'mentor:feedback-list' %}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm">
-                        View Feedback →
-                    </a>
-                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">No mentor feedback yet. Schedule a session to get personalized guidance from industry experts.</p>
+                <a href="{% url 'mentor:session-planner' %}" style="display: inline-block; font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600; margin-top: 12px; transition: all 0.15s ease;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--accent)'">Book session →</a>
             {% endif %}
         </div>
+
     </div>
 
-    <!-- Task Status Overview -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h3 class="text-xl font-semibold text-white mb-4">📊 Task Status</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="p-4 bg-gray-800 rounded-lg text-center">
-                <p class="text-gray-400 text-sm">To Do</p>
-                <p class="text-2xl font-bold text-white mt-1">{{ todo_count|default:"0" }}</p>
-            </div>
-            <div class="p-4 bg-gray-800 rounded-lg text-center">
-                <p class="text-gray-400 text-sm">In Progress</p>
-                <p class="text-2xl font-bold text-blue-400 mt-1">{{ in_progress_count|default:"0" }}</p>
-            </div>
-            <div class="p-4 bg-gray-800 rounded-lg text-center">
-                <p class="text-gray-400 text-sm">Completed</p>
-                <p class="text-2xl font-bold text-green-400 mt-1">{{ done_count|default:"0" }}</p>
-            </div>
-            <div class="p-4 bg-gray-800 rounded-lg text-center">
-                <p class="text-gray-400 text-sm">Total</p>
-                <p class="text-2xl font-bold text-gray-300 mt-1">{{ total_tasks|default:"0" }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Links -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-        <h3 class="text-xl font-semibold text-white mb-4">🚀 Quick Links</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="{% url 'tasks:task-board' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
-                <p class="text-gray-300 font-medium">Tasks</p>
-                <p class="text-gray-500 text-sm">Manage your work</p>
-            </a>
-            <a href="{% url 'mentor:list' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
-                <p class="text-gray-300 font-medium">Mentors</p>
-                <p class="text-gray-500 text-sm">Get guidance</p>
-            </a>
-            <a href="{% url 'investor:list' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
-                <p class="text-gray-300 font-medium">Investors</p>
-                <p class="text-gray-500 text-sm">Find funding</p>
-            </a>
-            <a href="{% url 'progress:overview' %}" class="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition text-center">
-                <p class="text-gray-300 font-medium">Progress</p>
-                <p class="text-gray-500 text-sm">Track metrics</p>
-            </a>
-        </div>
-    </div>
 </div>
+
+<!-- Task Checkbox Handler -->
+<script>
+document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', async (e) => {
+        const taskId = e.target.dataset.taskId;
+        const newStatus = e.target.checked ? 'done' : 'todo';
+        
+        try {
+            const response = await fetch(`/tasks/${taskId}/move/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            
+            if (!response.ok) {
+                e.target.checked = !e.target.checked;
+                console.error('Failed to update task');
+            }
+        } catch (error) {
+            e.target.checked = !e.target.checked;
+            console.error('Error updating task:', error);
+        }
+    });
+});
+</script>
+
 {% endblock %}

@@ -23,7 +23,7 @@
                 <option value="series_b">Series B</option>
                 <option value="growth">Growth Stage</option>
             </select>
-            <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-150 ease">
                 Search
             </button>
         </div>
@@ -33,7 +33,7 @@
     {% if investors %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for investor in investors %}
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-green-500 transition">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-green-500 transition-all duration-150 ease cursor-pointer">
                     <!-- Avatar & Name -->
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
@@ -75,18 +75,18 @@
 
                     <!-- Portfolio Link -->
                     {% if investor.portfolio_link %}
-                        <a href="{{ investor.portfolio_link }}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm mb-4 inline-block">
+                        <a href="{{ investor.portfolio_link }}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm mb-4 inline-block transition-all duration-150 ease">
                             View Portfolio →
                         </a>
                     {% endif %}
 
                     <!-- Actions -->
                     <div class="flex gap-2 mt-4">
-                        <a href="{% url 'investor:detail' investor.pk %}" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition text-center">
+                        <a href="{% url 'investor:detail' investor.pk %}" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-all duration-150 ease text-center">
                             View Profile
                         </a>
                         {% if investor.verified %}
-                            <button class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition">
+                            <button class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-all duration-150 ease">
                                 Reach Out
                             </button>
                         {% endif %}
@@ -102,7 +102,7 @@
             </svg>
             <h3 class="text-xl font-semibold text-white mb-2">No verified investors available</h3>
             <p class="text-gray-400">Check back soon or navigate to your investor dashboard to track meetings</p>
-            <a href="{% url 'investor:dashboard' %}" class="text-blue-400 hover:text-blue-300 mt-4 inline-block">
+            <a href="{% url 'investor:dashboard' %}" class="text-blue-400 hover:text-blue-300 mt-4 inline-block transition-all duration-150 ease">
                 Go to Investor Dashboard →
             </a>
         </div>

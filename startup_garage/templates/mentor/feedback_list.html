@@ -1,155 +1,180 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Mentor Feedback - Startup Garage{% endblock %}
+{% block title %}Mentor Sessions - Startup Garage{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div style="display: grid; grid-template-columns: 1fr; gap: var(--space-xl); margin-bottom: var(--space-xl);">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-4xl font-bold text-white">📚 Mentor Feedback</h1>
-            <p class="text-gray-400 mt-2">Track feedback and action items from mentor sessions</p>
-        </div>
-        <a href="{% url 'mentor:feedback-create' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-            + Add Feedback
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0;">📚 Mentor Sessions</h1>
+        <a href="{% url 'mentor:feedback-create' %}" style="display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: var(--accent); color: white; border-radius: var(--radius-md); text-decoration: none; font-size: 13px; font-weight: 600; transition: all var(--transition-fast); cursor: pointer;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <span>+</span> Add Session
         </a>
     </div>
-
-    <!-- Timeline Layout -->
-    {% if feedbacks %}
-        <div class="relative">
-            <!-- Timeline line -->
-            <div class="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
-
-            <!-- Feedback Cards -->
-            <div class="space-y-6">
-                {% for feedback in feedbacks %}
-                    <div class="relative pl-24">
-                        <!-- Timeline dot -->
-                        <div class="absolute left-0 top-3 w-16 h-16 bg-gray-900 border-4 border-blue-500 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-
-                        <!-- Card -->
-                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition">
-                            <!-- Card Header -->
-                            <div class="flex items-start justify-between gap-4">
-                                <div class="flex-1">
-                                    <h3 class="text-xl font-semibold text-white">{{ feedback.mentor_name }}</h3>
-                                    <p class="text-gray-400 text-sm mt-1">
-                                        📅 {{ feedback.session_date|date:"M d, Y" }}
-                                    </p>
-                                </div>
-                                <span class="px-3 py-1 text-xs rounded-full font-semibold
-                                    {% if feedback.is_completed %}
-                                        bg-green-900 text-green-200
-                                    {% else %}
-                                        bg-yellow-900 text-yellow-200
-                                    {% endif %}
-                                ">
-                                    {% if feedback.is_completed %}
-                                        ✅ Completed
-                                    {% else %}
-                                        ⏳ Pending
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <!-- Comment Preview -->
-                            <p class="text-gray-300 mt-3 text-sm line-clamp-2">
-                                {{ feedback.comment|truncatewords:20 }}
-                            </p>
-
-                            <!-- Next Step Preview -->
-                            {% if feedback.next_step %}
-                                <div class="mt-4 p-3 bg-gray-800 bg-opacity-50 border-l-4 border-blue-500 rounded">
-                                    <p class="text-gray-300 text-sm">
-                                        <span class="text-gray-400 text-xs uppercase tracking-wide">Next Step:</span>
-                                    </p>
-                                    <p class="text-white text-sm mt-1 line-clamp-1">{{ feedback.next_step }}</p>
-                                </div>
-                            {% endif %}
-
-                            <!-- Actions -->
-                            <div class="flex items-center gap-3 mt-4">
-                                <a href="{% url 'mentor:feedback-detail' feedback.pk %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition">
-                                    View Details
-                                </a>
-                                <a href="{% url 'mentor:feedback-update' feedback.pk %}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition">
-                                    Edit
-                                </a>
-                                {% if feedback.next_step and not feedback.is_completed %}
-                                    <button class="ml-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition complete-btn" 
-                                            data-feedback-id="{{ feedback.pk }}"
-                                            data-url="{% url 'mentor:feedback-complete' feedback.pk %}">
-                                        ✓ Mark Done
-                                    </button>
-                                {% elif feedback.is_completed %}
-                                    <button class="ml-auto px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white text-sm rounded-lg transition complete-btn" 
-                                            data-feedback-id="{{ feedback.pk }}"
-                                            data-url="{% url 'mentor:feedback-complete' feedback.pk %}">
-                                        ↩ Undo
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% else %}
-        <!-- Empty State -->
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
-            <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            <h3 class="text-xl font-semibold text-white mb-2">No feedback yet</h3>
-            <p class="text-gray-400 mb-6">Start tracking mentor feedback to see your journey</p>
-            <a href="{% url 'mentor:feedback-create' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition inline-block">
-                Add Your First Feedback
-            </a>
-        </div>
-    {% endif %}
 </div>
 
+{% if feedbacks %}
+
+<!-- Timeline Layout -->
+<div style="position: relative; padding-left: 0; padding-right: 0;">
+    
+    <!-- Vertical Timeline Line -->
+    <div style="position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: var(--border); z-index: 0;"></div>
+
+    <!-- Sessions -->
+    <div style="position: relative; z-index: 1;">
+        {% for feedback in feedbacks %}
+        <div style="margin-bottom: 16px; position: relative; margin-left: 52px;">
+            
+            <!-- Timeline Dot -->
+            <div style="position: absolute; left: -46px; top: 16px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg-base);"></div>
+
+            <!-- Session Card -->
+            <div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; transition: all var(--transition-fast);" onmouseover="this.style.borderColor='var(--border-subtle)'" onmouseout="this.style.borderColor='var(--border)'">
+                
+                <!-- Card Top Row: Mentor Name + Date + Status -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                    <h3 style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 0;">{{ feedback.mentor.user.get_full_name }}</h3>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                        {% if feedback.is_completed %}
+                        <span style="font-size: 11px; background: #10b98120; color: #10b981; padding: 3px 8px; border-radius: 20px; font-weight: 600;">✓ Done</span>
+                        {% endif %}
+                        <span style="font-size: 11px; background: var(--bg-surface); border: 0.5px solid var(--border); padding: 3px 8px; border-radius: 20px; color: var(--text-muted); white-space: nowrap;">{{ feedback.session_date|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+
+                <!-- Discussion Section -->
+                <div style="margin-bottom: 12px;">
+                    <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin: 0 0 8px;">Discussion</p>
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0;" class="feedback-comment" data-feedback-id="{{ feedback.pk }}" data-full-text="{{ feedback.comment|escapejs }}">{{ feedback.comment|truncatewords:25 }}</p>
+                    {% if feedback.comment|wordcount > 25 %}
+                    <button style="font-size: 11px; color: var(--accent); background: none; border: none; padding: 4px 0; margin-top: 4px; cursor: pointer; font-weight: 600;" class="read-more-btn" data-feedback-id="{{ feedback.pk }}" onclick="toggleReadMore({{ feedback.pk }})">Read more →</button>
+                    {% endif %}
+                </div>
+
+                <!-- Next Step Section (if exists) -->
+                {% if feedback.next_step %}
+                <div style="border-left: 2px solid var(--warning); padding-left: 10px; margin-bottom: 12px; padding-top: 8px; padding-bottom: 8px;">
+                    <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; margin: 0 0 6px;">Next Step</p>
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <input type="checkbox" 
+                               class="next-step-checkbox" 
+                               data-feedback-id="{{ feedback.pk }}"
+                               {% if feedback.is_completed %}checked{% endif %}
+                               style="width: 14px; height: 14px; margin-top: 2px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0;">
+                        <p style="font-size: 12px; {% if feedback.is_completed %}color: var(--text-muted); text-decoration: line-through;{% else %}color: var(--text-primary);{% endif %} margin: 0; flex: 1;">{{ feedback.next_step }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Footer: Links -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 0.5px solid var(--border-subtle);">
+                    <a href="{% url 'mentor:feedback-detail' feedback.pk %}" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600; transition: color var(--transition-fast);" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--accent)'">View full session →</a>
+                    <a href="{% url 'mentor:feedback-update' feedback.pk %}" style="font-size: 11px; color: var(--text-muted); text-decoration: none; font-weight: 600; transition: color var(--transition-fast);" onmouseover="this.style.color='var(--text-secondary)'" onmouseout="this.style.color='var(--text-muted)'">Edit</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% else %}
+
+<!-- Empty State -->
+<div style="background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 48px 24px; text-align: center;">
+    <p style="font-size: 24px; margin: 0 0 12px;">📝</p>
+    <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0 0 8px;">No mentor sessions yet</h3>
+    <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 20px;">Schedule your first session to get personalized guidance from industry experts</p>
+    <a href="{% url 'mentor:session-planner' %}" style="display: inline-block; padding: 10px 16px; background: var(--accent); color: white; border-radius: var(--radius-md); text-decoration: none; font-size: 13px; font-weight: 600; transition: all var(--transition-fast); cursor: pointer;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Schedule Session</a>
+</div>
+
+{% endif %}
+
 <script>
-    // Get CSRF token from cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// Get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
+}
 
-    const csrftoken = getCookie('csrftoken');
+const csrftoken = getCookie('csrftoken');
 
-    // Handle completion toggle via AJAX
-    document.querySelectorAll('.complete-btn').forEach(btn => {
-        btn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const feedbackUrl = this.dataset.url;
-            
-            const response = await fetch(feedbackUrl, {
+// Toggle "Read more"
+function toggleReadMore(feedbackId) {
+    const commentEl = document.querySelector(`.feedback-comment[data-feedback-id="${feedbackId}"]`);
+    const btn = document.querySelector(`.read-more-btn[data-feedback-id="${feedbackId}"]`);
+    
+    if (commentEl) {
+        const fullText = commentEl.dataset.fullText;
+        const isExpanded = commentEl.dataset.expanded === 'true';
+        
+        if (isExpanded) {
+            commentEl.textContent = fullText.split(' ').slice(0, 25).join(' ') + '...';
+            btn.textContent = 'Read more →';
+            commentEl.dataset.expanded = 'false';
+        } else {
+            commentEl.textContent = fullText;
+            btn.textContent = 'Read less ←';
+            commentEl.dataset.expanded = 'true';
+        }
+    }
+}
+
+// Handle next step checkbox
+document.querySelectorAll('.next-step-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', async function(e) {
+        const feedbackId = this.dataset.feedbackId;
+        const isCompleted = this.checked;
+        const cardEl = this.closest('div[style*="background: var(--bg-elevated)"]');
+        
+        try {
+            const response = await fetch(`/mentor/feedback/${feedbackId}/complete/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrftoken,
                     'Content-Type': 'application/json',
                 }
             });
+            
             if (response.ok) {
-                location.reload();
+                // Update UI
+                if (isCompleted) {
+                    // Find the next-step text and add strikethrough
+                    const nextStepText = cardEl.querySelector('p[style*="color: var(--text-primary)"]');
+                    if (nextStepText) {
+                        nextStepText.style.textDecoration = 'line-through';
+                        nextStepText.style.color = 'var(--text-muted)';
+                    }
+                } else {
+                    // Remove strikethrough
+                    const nextStepText = cardEl.querySelector('p[style*="text-decoration"]');
+                    if (nextStepText) {
+                        nextStepText.style.textDecoration = 'none';
+                        nextStepText.style.color = 'var(--text-primary)';
+                    }
+                }
+            } else {
+                this.checked = !isCompleted;
+                console.error('Failed to update completion status');
             }
-        });
+        } catch (error) {
+            this.checked = !isCompleted;
+            console.error('Error:', error);
+        }
     });
+});
 </script>
+
 {% endblock %}

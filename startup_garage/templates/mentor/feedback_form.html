@@ -38,7 +38,7 @@
                 <label for="id_mentor_name" class="block text-white font-medium mb-2">{{ form.mentor_name.label }}</label>
                 {{ form.mentor_name }}
                 {% if form.mentor_name.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.mentor_name.errors.0 }}</p>
+                    <div class="field-error">{{ form.mentor_name.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -47,7 +47,7 @@
                 <label for="id_session_date" class="block text-white font-medium mb-2">{{ form.session_date.label }}</label>
                 {{ form.session_date }}
                 {% if form.session_date.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.session_date.errors.0 }}</p>
+                    <div class="field-error">{{ form.session_date.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -57,7 +57,7 @@
                 {{ form.comment }}
                 <p class="text-gray-400 text-sm mt-1">Summarize what was discussed in the session</p>
                 {% if form.comment.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.comment.errors.0 }}</p>
+                    <div class="field-error">{{ form.comment.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -67,7 +67,7 @@
                 {{ form.recommendation }}
                 <p class="text-gray-400 text-sm mt-1">What did your mentor recommend?</p>
                 {% if form.recommendation.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.recommendation.errors.0 }}</p>
+                    <div class="field-error">{{ form.recommendation.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -77,20 +77,20 @@
                 {{ form.next_step }}
                 <p class="text-gray-400 text-sm mt-1">What's your action item from this session?</p>
                 {% if form.next_step.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.next_step.errors.0 }}</p>
+                    <div class="field-error">{{ form.next_step.errors.0 }}</div>
                 {% endif %}
             </div>
 
             <!-- Buttons -->
             <div class="flex gap-4 pt-4">
-                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-150 ease">
                     {% if form.instance.pk %}
                         Update Feedback
                     {% else %}
                         Save Feedback
                     {% endif %}
                 </button>
-                <a href="{% url 'mentor:feedback-list' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition">
+                <a href="{% url 'mentor:feedback-list' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-all duration-150 ease">
                     Cancel
                 </a>
             </div>

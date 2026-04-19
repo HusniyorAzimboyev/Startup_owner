@@ -3,227 +3,159 @@
 {% block title %}Investor Dashboard - Startup Garage{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-4xl font-bold text-white">💰 Investor Dashboard</h1>
-            <p class="text-gray-400 mt-2">Track your pitch deck and investor meetings</p>
-        </div>
-        <a href="{% url 'investor:meeting-create' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-            + Schedule Meeting
-        </a>
-    </div>
+<div style="display: grid; grid-template-columns: 1fr; gap: var(--space-xl); margin-bottom: var(--space-xl);">
 
-    <!-- Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Left Column (3 cols) -->
-        <div class="lg:col-span-3 space-y-6">
-            <!-- Pitch Deck Card -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
-                <div class="flex items-start justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">📊 Pitch Deck</h2>
-                        <p class="text-gray-400 text-sm mt-1">{{ pitch_deck.version }}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <span class="px-4 py-2 text-sm rounded-full font-semibold
-                            {% if pitch_deck.status == 'ready' %}
-                                bg-green-900 text-green-200
-                            {% elif pitch_deck.status == 'review' %}
-                                bg-yellow-900 text-yellow-200
-                            {% else %}
-                                bg-gray-700 text-gray-300
-                            {% endif %}
-                        ">
-                            {{ pitch_deck.get_status_display }}
-                        </span>
-                        <a href="{% url 'investor:pitchdeck-update' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition">
-                            Edit
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Readiness Progress Bar -->
-                <div class="mb-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-gray-400 text-sm">Readiness Score</span>
-                        <span class="text-white font-semibold">{{ pitch_score }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-800 rounded-full h-3">
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300"
-                             style="width: {{ pitch_score }}%">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Notes -->
-                {% if pitch_deck.notes %}
-                    <p class="text-gray-300 p-4 bg-gray-800 rounded-lg">{{ pitch_deck.notes }}</p>
-                {% else %}
-                    <p class="text-gray-400 p-4 bg-gray-800 rounded-lg italic">No notes yet. Add internal notes about your pitch deck.</p>
-                {% endif %}
-            </div>
-
-            <!-- Upcoming Meetings -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
-                <h3 class="text-2xl font-bold text-white mb-6">📅 Upcoming Meetings</h3>
-                
-                {% if upcoming_meetings %}
-                    <div class="space-y-4">
-                        {% for meeting in upcoming_meetings %}
-                            <div class="bg-gray-800 rounded-lg p-4 border-l-4 border-blue-500 hover:border-blue-400 transition">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <h4 class="text-white font-semibold">{{ meeting.investor_name }}</h4>
-                                        {% if meeting.company %}
-                                            <p class="text-gray-400 text-sm">{{ meeting.company }}</p>
-                                        {% endif %}
-                                        <p class="text-gray-400 text-sm mt-2">
-                                            📅 {{ meeting.meeting_date|date:"M d, Y \a\t g:i A" }}
-                                        </p>
-                                        {% with days_until=meeting.meeting_date|add:"-0d" %}
-                                            <p class="text-blue-400 text-sm mt-1">
-                                                ⏱️ In {{ meeting.meeting_date|timesince }} 
-                                            </p>
-                                        {% endwith %}
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <a href="{% url 'investor:meeting-update' meeting.pk %}" class="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition">
-                                            Edit
-                                        </a>
-                                        <a href="{% url 'investor:meeting-delete' meeting.pk %}" class="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition">
-                                            Delete
-                                        </a>
-                                    </div>
-                                </div>
-                                {% if meeting.notes %}
-                                    <p class="text-gray-400 text-sm mt-3 p-2 bg-gray-700 rounded">{{ meeting.notes }}</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-8 text-gray-400">
-                        <p>No upcoming meetings scheduled</p>
-                        <a href="{% url 'investor:meeting-create' %}" class="text-blue-400 hover:text-blue-300 mt-2 inline-block">
-                            Schedule your first meeting →
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Past Meetings -->
-            {% if past_meetings %}
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
-                    <h3 class="text-2xl font-bold text-white mb-6">📋 Past Meetings</h3>
-                    
-                    <div class="space-y-4">
-                        {% for meeting in past_meetings %}
-                            <div class="bg-gray-800 rounded-lg p-4 border-l-4 border-gray-600">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <h4 class="text-white font-semibold">{{ meeting.investor_name }}</h4>
-                                        {% if meeting.company %}
-                                            <p class="text-gray-400 text-sm">{{ meeting.company }}</p>
-                                        {% endif %}
-                                        <p class="text-gray-400 text-sm mt-2">
-                                            📅 {{ meeting.meeting_date|date:"M d, Y" }}
-                                        </p>
-                                        <span class="inline-block mt-2 px-2 py-1 text-xs rounded font-semibold
-                                            {% if meeting.status == 'completed' %}
-                                                bg-green-900 text-green-200
-                                            {% elif meeting.status == 'followup' %}
-                                                bg-yellow-900 text-yellow-200
-                                            {% elif meeting.status == 'passed' %}
-                                                bg-red-900 text-red-200
-                                            {% else %}
-                                                bg-gray-700 text-gray-300
-                                            {% endif %}
-                                        ">
-                                            {{ meeting.get_status_display }}
-                                        </span>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <a href="{% url 'investor:meeting-update' meeting.pk %}" class="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition">
-                                            Edit
-                                        </a>
-                                    </div>
-                                </div>
-                                {% if meeting.notes %}
-                                    <p class="text-gray-400 text-sm mt-3 p-2 bg-gray-700 rounded">{{ meeting.notes }}</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Right Column (1 col - Sidebar) -->
-        <div class="lg:col-span-1 space-y-6">
-            <!-- Overall Readiness Circular Indicator -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 flex flex-col items-center">
-                <h3 class="text-lg font-semibold text-white mb-4">Overall Readiness</h3>
-                
-                <!-- SVG Circular Progress -->
-                <svg class="w-32 h-32 mb-4" viewBox="0 0 120 120">
-                    <!-- Background circle -->
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="#374151" stroke-width="8"/>
-                    
-                    <!-- Progress circle -->
-                    <circle cx="60" cy="60" r="54" fill="none" 
-                            stroke="#3B82F6" stroke-width="8"
-                            stroke-dasharray="336"
-                            stroke-dashoffset="{{ 336 | add:'-0' | add:overall_readiness | add:'*3.36' | stringformat:'.0f' | add:'*-1' }}"
-                            stroke-linecap="round"
-                            class="transition-all duration-500"
-                            style="stroke-dashoffset: calc(336 * (1 - {{ overall_readiness }}/100))"/>
-                    
-                    <!-- Center text -->
-                    <text x="60" y="60" text-anchor="middle" dy=".3em" font-size="28" font-weight="bold" fill="#FFFFFF">
-                        {{ overall_readiness }}%
-                    </text>
+    <!-- SECTION 1 — Readiness Score (Full Width Card) -->
+    <div style="background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center;">
+        
+        <!-- Left Side: Circular Progress + Breakdown -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            
+            <!-- Circular SVG Progress -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                <svg style="width: 100px; height: 100px; transform: rotate(-90deg);" viewBox="0 0 120 120">
+                    <!-- Outer ring (background) -->
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg-elevated)" stroke-width="8"/>
+                    <!-- Inner arc (progress) -->
+                    <circle cx="60" cy="60" r="50" fill="none" 
+                            stroke="{% if readiness_score >= 70 %}#10b981{% elif readiness_score >= 40 %}#f59e0b{% else %}#ef4444{% endif %}"
+                            stroke-width="8"
+                            stroke-dasharray="{% widthratio readiness_score 1 314.16 %} 314.16"
+                            stroke-linecap="round"/>
                 </svg>
                 
-                <div class="text-center text-sm text-gray-400">
-                    <p>Pitch: {{ pitch_score }}%</p>
-                    <p>Meetings: {{ meeting_count }}</p>
+                <div style="text-align: center;">
+                    <p style="font-size: 22px; font-weight: 700; color: var(--text-primary); margin: 0;">{{ readiness_score }}%</p>
+                    <p style="font-size: 11px; color: var(--text-muted); margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 0.5px;">Ready</p>
                 </div>
             </div>
-
-            <!-- Quick Stats -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
-                <h3 class="text-lg font-semibold text-white">📊 Stats</h3>
+            
+            <!-- Breakdown Rows -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <!-- Row 1: Pitch Deck Status -->
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="flex: 1;">
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 500;">Pitch Deck Status</p>
+                    </div>
+                    <div style="width: 60px; height: 3px; background: var(--bg-base); border-radius: 2px; overflow: hidden;">
+                        <div style="height: 100%; background: {% if pitch_deck.status == 'ready' %}#10b981{% elif pitch_deck.status == 'review' %}#f59e0b{% else %}#6b7280{% endif %}; width: {% if pitch_deck.status == 'ready' %}100{% elif pitch_deck.status == 'review' %}66{% else %}33{% endif %}%; border-radius: 2px;"></div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0; min-width: 50px; text-align: right;">{{ pitch_deck.get_status_display }}</p>
+                </div>
                 
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                        <span class="text-gray-400">Total Meetings</span>
-                        <span class="text-white font-semibold text-lg">{{ meeting_count }}</span>
+                <!-- Row 2: Meetings Completed -->
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="flex: 1;">
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 500;">Meetings Completed</p>
                     </div>
-                    
-                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                        <span class="text-gray-400">Upcoming</span>
-                        <span class="text-blue-400 font-semibold text-lg">{{ upcoming_count }}</span>
+                    <div style="width: 60px; height: 3px; background: var(--bg-base); border-radius: 2px; overflow: hidden;">
+                        <div style="height: 100%; background: #6366f1; width: {% if total_meetings > 0 %}{{ completed_meetings|add:"0" }}%{% else %}0%{% endif %}; border-radius: 2px;"></div>
                     </div>
-                    
-                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                        <span class="text-gray-400">Pitch Status</span>
-                        <span class="text-white font-semibold capitalize">{{ pitch_deck.get_status_display }}</span>
-                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0; min-width: 50px; text-align: right;">{{ completed_meetings|default:"0" }}/{{ total_meetings|default:"0" }}</p>
                 </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-2">
-                <a href="{% url 'investor:pitchdeck-update' %}" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-center block text-sm font-medium">
-                    Update Pitch Deck
-                </a>
-                <a href="{% url 'investor:meeting-create' %}" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-center block text-sm font-medium">
-                    New Meeting
-                </a>
+                
+                <!-- Row 3: Follow-ups Done -->
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="flex: 1;">
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 500;">Follow-ups Done</p>
+                    </div>
+                    <div style="width: 60px; height: 3px; background: var(--bg-base); border-radius: 2px; overflow: hidden;">
+                        <div style="height: 100%; background: #a855f7; width: {% if total_meetings > 0 %}{{ completed_followups|add:"0" }}%{% else %}0%{% endif %}; border-radius: 2px;"></div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0; min-width: 50px; text-align: right;">{{ completed_followups|default:"0" }}/{{ total_meetings|default:"0" }}</p>
+                </div>
             </div>
         </div>
+        
+        <!-- Right Side: Pitch Deck Status Card -->
+        <div style="display: flex; flex-direction: column; gap: 16px; border-left: 0.5px solid var(--border); padding-left: 32px;">
+            <div>
+                <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin: 0 0 8px 0; font-weight: 600;">Pitch Deck</p>
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0;">Version {{ pitch_deck.version }}</h3>
+            </div>
+            
+            <!-- Status Badge -->
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="display: inline-block; font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-md); background: {% if pitch_deck.status == 'ready' %}#10b98120{% elif pitch_deck.status == 'review' %}#f59e0b20{% else %}#6b728020{% endif %}; color: {% if pitch_deck.status == 'ready' %}#10b981{% elif pitch_deck.status == 'review' %}#f59e0b{% else %}#6b7280{% endif %};">
+                    {% if pitch_deck.status == 'ready' %}✓ Ready{% elif pitch_deck.status == 'review' %}⧗ In Review{% else %}✎ Draft{% endif %}
+                </span>
+            </div>
+            
+            <!-- Notes (truncated) -->
+            {% if pitch_deck.notes %}
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ pitch_deck.notes }}</p>
+            {% else %}
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-style: italic;">No notes yet</p>
+            {% endif %}
+            
+            <!-- Update Status Button -->
+            <a href="{% url 'investor:pitchdeck-update' %}" style="display: inline-block; padding: 10px 16px; background: var(--accent); color: #fff; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; text-decoration: none; text-align: center; border: none; cursor: pointer; transition: background 0.2s ease; align-self: flex-start;" onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='var(--accent)'">
+                Update status
+            </a>
+        </div>
     </div>
+
+    <!-- SECTION 2 — Upcoming Meetings (Table-style List) -->
+    <div style="background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
+        
+        {% if upcoming_meetings %}
+            <!-- Table Header -->
+            <div style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr; gap: 16px; padding: 16px 20px; background: var(--bg-base); border-bottom: 0.5px solid var(--border); align-items: center;">
+                <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; margin: 0;">Investor</p>
+                <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; margin: 0;">Company</p>
+                <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; margin: 0;">Date</p>
+                <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; margin: 0;">Status</p>
+                <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; margin: 0;">Actions</p>
+            </div>
+            
+            <!-- Table Rows -->
+            {% for meeting in upcoming_meetings %}
+            <div style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr; gap: 16px; padding: 16px 20px; border-bottom: 0.5px solid var(--border); align-items: center; transition: background 0.15s ease;" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background='transparent'">
+                
+                <!-- Investor Name -->
+                <div>
+                    <p style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin: 0;">{{ meeting.investor_name }}</p>
+                </div>
+                
+                <!-- Company -->
+                <div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">{{ meeting.company|default:"—" }}</p>
+                </div>
+                
+                <!-- Date -->
+                <div>
+                    <p style="font-size: 12px; color: var(--text-primary); margin: 0; font-weight: 500;">{{ meeting.meeting_date|date:"M d, Y" }}</p>
+                    <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 0 0;">in {{ meeting.meeting_date|timeuntil }}</p>
+                </div>
+                
+                <!-- Status Badge -->
+                <div>
+                    <span style="display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px; background: {% if meeting.status == 'scheduled' %}#3b82f620{% elif meeting.status == 'completed' %}#10b98120{% elif meeting.status == 'followup' %}#f59e0b20{% else %}#6b728020{% endif %}; color: {% if meeting.status == 'scheduled' %}#3b82f6{% elif meeting.status == 'completed' %}#10b981{% elif meeting.status == 'followup' %}#f59e0b{% else %}#6b7280{% endif %};">
+                        {% if meeting.status == 'scheduled' %}📅 Scheduled{% elif meeting.status == 'completed' %}✓ Completed{% elif meeting.status == 'followup' %}↻ Follow-up{% else %}✕ Passed{% endif %}
+                    </span>
+                </div>
+                
+                <!-- Actions -->
+                <div style="display: flex; gap: 8px;">
+                    <a href="{% url 'investor:meeting-update' meeting.pk %}" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); text-decoration: none; font-size: 13px; cursor: pointer; transition: all 0.2s ease;" title="Edit" onmouseover="this.style.background='var(--accent)'; this.style.color='#fff'" onmouseout="this.style.background='var(--bg-elevated)'; this.style.color='var(--text-muted)'">✎</a>
+                    <a href="{% url 'investor:meeting-delete' meeting.pk %}" style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--bg-elevated); border: 0.5px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); text-decoration: none; font-size: 13px; cursor: pointer; transition: all 0.2s ease;" title="Delete" onmouseover="this.style.background='#ef4444'; this.style.color='#fff'" onmouseout="this.style.background='var(--bg-elevated)'; this.style.color='var(--text-muted)'">🗑</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- SECTION 3 — Add Meeting CTA (if no upcoming) -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; min-height: 200px;">
+                <svg style="width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.5;" fill="none" viewBox="0 0 24 24" stroke="currentColor" color="var(--text-muted)">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0 0 8px 0;">Schedule your first investor meeting</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 20px 0; max-width: 300px;">Get on the calendar with investors and track your pitch progress</p>
+                <a href="{% url 'investor:meeting-create' %}" style="display: inline-block; padding: 11px 20px; background: var(--accent); color: #fff; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; text-decoration: none; border: none; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='var(--accent)'">
+                    Schedule meeting →
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}

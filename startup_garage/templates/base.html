@@ -3,80 +3,670 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Startup Garage{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{% block title %}Startup Garage - Founder OS{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInTop {
+            from { transform: translateY(-16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-button {
+            0% { border-color: var(--accent) transparent transparent transparent; }
+            100% { border-color: transparent transparent transparent transparent; transform: rotate(360deg); }
+        }
+
+        /* ===== GLOBAL STYLES ===== */
+        body.app { 
+            display: flex; 
+            height: 100vh; 
+            background: var(--bg-base); 
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background: var(--bg-surface);
+            border-right: 0.5px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 20px;
+            gap: 28px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 20px;
+            border-bottom: 0.5px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 12px 10px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-bg);
+            color: var(--accent-light);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+
+        .nav-item:hover .nav-icon {
+            opacity: 1;
+        }
+
+        .sidebar-spacer {
+            flex: 1;
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 10px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-top: 0.5px solid var(--border);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .sidebar-user:hover {
+            background: var(--bg-hover);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-startup {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .logout-form {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .sidebar-user.logout-open .logout-form {
+            display: block;
+        }
+
+        .sidebar-user.logout-open {
+            display: none;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-left: 220px;
+        }
+
+        .topbar {
+            padding: 20px 28px;
+            border-bottom: 0.5px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-base);
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .topbar-greeting {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .topbar-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-new-task {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-new-task:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-new-task:active {
+            transform: translateY(0);
+        }
+
+        .btn-new-task.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin-button 0.6s linear infinite;
+        }
+
+        .icon-bell {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.15s ease;
+        }
+
+        .icon-bell:hover {
+            opacity: 1;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 28px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        /* Messages at top of content */
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 8px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: auto;
+            max-width: 320px;
+            z-index: 1000;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border-left: 3px solid;
+            font-size: 13px;
+            background: var(--bg-elevated);
+            animation: slideInTop 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert-success {
+            border-left-color: #10b981;
+            color: #047857;
+        }
+
+        .alert-danger {
+            border-left-color: #ef4444;
+            color: #dc2626;
+        }
+
+        .alert-warning {
+            border-left-color: #f59e0b;
+            color: #d97706;
+        }
+
+        /* Scrollbar styling - thin modern style */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Container for main content */
+        .container {
+            width: 100%;
+        }
+
+        /* ===== MOBILE RESPONSIVENESS ===== */
+        @media (max-width: 767px) {
+            body.app {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 0;
+                gap: 0;
+                border-right: none;
+                border-top: 0.5px solid var(--border);
+                overflow-x: auto;
+                overflow-y: hidden;
+                order: 2;
+            }
+
+            .sidebar-logo {
+                display: none;
+            }
+
+            .nav-section {
+                flex-direction: row;
+                gap: 0;
+                padding: 0;
+            }
+
+            .nav-section-label {
+                display: none;
+            }
+
+            .nav-item {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                padding: 12px 16px;
+                border-radius: 0;
+                font-size: 10px;
+                text-align: center;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .nav-icon {
+                width: 20px;
+                height: 20px;
+            }
+
+            .sidebar-spacer {
+                display: none;
+            }
+
+            .sidebar-user {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                order: 1;
+            }
+
+            .topbar {
+                padding: 16px 20px;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-meta {
+                font-size: 11px;
+            }
+
+            .btn-new-task {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-950 text-gray-100">
-    <!-- Navigation -->
-    <nav class="bg-gray-900 border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'home' %}" class="text-2xl font-bold text-blue-500">
-                        Startup Garage
-                    </a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    {% if user.is_authenticated %}
-                        <span class="text-gray-400">{{ user.username }}</span>
-                        <a href="{% url 'accounts:profile' %}" class="text-gray-300 hover:text-white transition">
-                            Profile
-                        </a>
-                        <!-- Logout Form (POST required for Django 6.x) -->
-                        <form method="post" action="{% url 'accounts:logout' %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="text-gray-300 hover:text-white transition bg-none border-none cursor-pointer">
-                                Logout
-                            </button>
-                        </form>
-                    {% else %}
-                        <a href="{% url 'accounts:login' %}" class="text-gray-300 hover:text-white transition">
-                            Login
-                        </a>
-                        <a href="{% url 'accounts:register' %}" class="text-gray-300 hover:text-white transition">
-                            Register
-                        </a>
-                    {% endif %}
+<body class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-logo">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <div class="logo-icon">🚀</div>
+                <div>
+                    <div class="logo-text">FOS</div>
+                    <div class="logo-subtitle">Founder OS</div>
                 </div>
             </div>
         </div>
-    </nav>
 
-    <!-- Messages (Secure Message Display) -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        <!-- Navigation -->
+        {% if user.is_authenticated %}
+            <!-- Workspace Section -->
+            <div class="nav-section">
+                <div class="nav-section-label">Workspace</div>
+                <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M1 3h14v11c0 .5-.4 1-1 1H2c-.6 0-1-.5-1-1V3z"/>
+                        <path d="M1 6h14"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{% url 'tasks:task-board' %}" class="nav-item {% if request.resolver_match.app_name == 'tasks' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M13 2H3c-.6 0-1 .4-1 1v10c0 .6.4 1 1 1h10c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1z"/>
+                        <path d="M5 7h6M5 10h6"/>
+                    </svg>
+                    Tasks
+                </a>
+                <a href="{% url 'mentor:list' %}" class="nav-item {% if request.resolver_match.app_name == 'mentor' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="8" cy="4" r="2.5"/>
+                        <path d="M1 14c0-2.2 3-3.5 7-3.5s7 1.3 7 3.5"/>
+                    </svg>
+                    Mentor
+                </a>
+            </div>
+
+            <!-- Growth Section -->
+            <div class="nav-section">
+                <div class="nav-section-label">Growth</div>
+                <a href="{% url 'investor:list' %}" class="nav-item {% if request.resolver_match.app_name == 'investor' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M2 12h12M2 2v10c0 .6.4 1 1 1h10c.6 0 1-.4 1-1V2"/>
+                        <path d="M4 8l3-3 3 3 2-2"/>
+                    </svg>
+                    Investor
+                </a>
+                <a href="{% url 'progress:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'progress' %}active{% endif %}">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M1 12h14M3 12v-4M8 12V3M13 12v-7"/>
+                    </svg>
+                    Progress
+                </a>
+            </div>
+
+            <!-- Spacer -->
+            <div class="sidebar-spacer"></div>
+
+            <!-- User Section -->
+            <div class="sidebar-user" onclick="this.classList.toggle('logout-open')">
+                <div class="user-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="user-startup">
+                        {% if startup_name %}{{ startup_name }}{% else %}No startup{% endif %}
+                    </div>
+                </div>
+                <svg style="width: 14px; height: 14px; opacity: 0.5; flex-shrink: 0;" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 11l4-4-4-4"/>
+                </svg>
+
+                <!-- Logout Form -->
+                <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-block">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="main">
+        <!-- TOPBAR -->
+        {% if user.is_authenticated %}
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-greeting">
+                    {% now "G" as hour %}
+                    {% if hour|add:"0" < 12 %}
+                        Good morning, {{ user.first_name|default:user.username }}
+                    {% elif hour|add:"0" < 17 %}
+                        Good afternoon, {{ user.first_name|default:user.username }}
+                    {% else %}
+                        Good evening, {{ user.first_name|default:user.username }}
+                    {% endif %}
+                </div>
+                <div class="topbar-meta">
+                    <span>{% now "M j, Y" %}</span>
+                    {% if startup_stage %}<span>•</span><span>{{ startup_stage }}</span>{% endif %}
+                    {% if days_since_startup %}<span>•</span><span>Day {{ days_since_startup }}</span>{% endif %}
+                </div>
+            </div>
+            <div class="topbar-right">
+                <a href="{% url 'tasks:task-create' %}" class="btn-new-task">
+                    <span>+</span>
+                    New Task
+                </a>
+                <svg class="icon-bell" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 6c0-2.2 1.8-4 4-4s4 1.8 4 4v4l2 2H1l2-2V6z"/>
+                    <circle cx="8" cy="14" r="0.5" fill="currentColor"/>
+                </svg>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- CONTENT -->
+        <main class="content">
+            <!-- Messages -->
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
                 {% with message_class=message.tags|lower %}
-                <div class="p-4 rounded-lg 
-                    {% if message_class == 'error' %}bg-red-900 text-red-200
-                    {% elif message_class == 'success' %}bg-green-900 text-green-200
-                    {% elif message_class == 'warning' %}bg-yellow-900 text-yellow-200
-                    {% elif message_class == 'info' %}bg-blue-900 text-blue-200
-                    {% else %}bg-blue-900 text-blue-200{% endif %}
+                <div class="alert 
+                    {% if message_class == 'error' %}alert-danger
+                    {% elif message_class == 'success' %}alert-success
+                    {% elif message_class == 'warning' %}alert-warning
+                    {% else %}alert-success{% endif %}
                 ">
                     {{ message }}
                 </div>
                 {% endwith %}
+                {% endfor %}
             </div>
-        {% endfor %}
-    {% endif %}
+            {% endif %}
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-gray-800 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="text-center text-gray-400">
-                <p>&copy; 2026 Startup Garage. All rights reserved.</p>
+            <!-- Page Content -->
+            <div class="container">
+                {% block content %}{% endblock %}
             </div>
-        </div>
-    </footer>
+        </main>
+    </div>
 
-    <!-- Extra JavaScript Block -->
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
     {% block extra_js %}{% endblock %}
+
+    <script>
+        // Auto-dismiss toast messages after 3 seconds
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                alert.style.animation = 'slideInTop 0.2s ease reverse';
+                setTimeout(() => alert.remove(), 200);
+            }, 3000);
+        });
+
+        // Global fetch interceptor with loading state
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            // Add loading spinner to buttons if needed
+            const button = document.activeElement;
+            if (button && button.tagName === 'BUTTON') {
+                const originalHTML = button.innerHTML;
+                button.classList.add('loading');
+                button.innerHTML = '<span class="spinner"></span>';
+            }
+            
+            return originalFetch.apply(this, args).finally(() => {
+                if (button && button.tagName === 'BUTTON') {
+                    button.classList.remove('loading');
+                    button.innerHTML = originalHTML;
+                }
+            });
+        };
+
+        // Prevent logout form submission when clicking user area
+        const logoutForm = document.querySelector('.logout-form');
+        if (logoutForm) {
+            logoutForm.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+    </script>
 </body>
 </html>
 

@@ -16,7 +16,7 @@
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
         <div class="flex flex-col md:flex-row gap-4">
             <input type="text" placeholder="Search mentors..." class="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
-            <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-150 ease">
                 Search
             </button>
         </div>
@@ -26,7 +26,7 @@
     {% if mentors %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for mentor in mentors %}
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition-all duration-150 ease cursor-pointer">
                     <!-- Avatar & Name -->
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -84,18 +84,18 @@
 
                     <!-- Portfolio Link -->
                     {% if mentor.portfolio_link %}
-                        <a href="{{ mentor.portfolio_link }}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm mb-4 inline-block">
+                        <a href="{{ mentor.portfolio_link }}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm mb-4 inline-block transition-all duration-150 ease">
                             View Portfolio →
                         </a>
                     {% endif %}
 
                     <!-- Actions -->
                     <div class="flex gap-2 mt-4">
-                        <a href="{% url 'mentor:detail' mentor.pk %}" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition text-center">
+                        <a href="{% url 'mentor:detail' mentor.pk %}" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-all duration-150 ease text-center">
                             View Profile
                         </a>
                         {% if mentor.availability != 'unavailable' %}
-                            <a href="{% url 'mentor:session-planner-mentor' mentor.pk %}" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition text-center">
+                            <a href="{% url 'mentor:session-planner-mentor' mentor.pk %}" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-all duration-150 ease text-center">
                                 Connect
                             </a>
                         {% endif %}

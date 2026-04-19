@@ -21,7 +21,7 @@
                 {{ form.version }}
                 <p class="text-gray-400 text-sm mt-1">Track your pitch deck version (e.g., v1.0, v1.1, v2.0)</p>
                 {% if form.version.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.version.errors.0 }}</p>
+                    <div class="field-error">{{ form.version.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -35,7 +35,7 @@
                     <p><strong>Ready:</strong> Polished and ready to share with investors</p>
                 </div>
                 {% if form.status.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.status.errors.0 }}</p>
+                    <div class="field-error">{{ form.status.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -45,16 +45,16 @@
                 {{ form.notes }}
                 <p class="text-gray-400 text-sm mt-1">Private notes for yourself (e.g., "Needs market size update", "Updated unit economics")</p>
                 {% if form.notes.errors %}
-                    <p class="text-red-400 text-sm mt-1">{{ form.notes.errors.0 }}</p>
+                    <div class="field-error">{{ form.notes.errors.0 }}</div>
                 {% endif %}
             </div>
 
             <!-- Buttons -->
             <div class="flex gap-4 pt-4">
-                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-150 ease">
                     Save Changes
                 </button>
-                <a href="{% url 'investor:dashboard' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition">
+                <a href="{% url 'investor:dashboard' %}" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-all duration-150 ease">
                     Cancel
                 </a>
             </div>
@@ -93,7 +93,7 @@
 
     <!-- Back Link -->
     <div class="mt-8">
-        <a href="{% url 'investor:dashboard' %}" class="text-blue-400 hover:text-blue-300 transition">
+        <a href="{% url 'investor:dashboard' %}" class="text-blue-400 hover:text-blue-300 transition-all duration-150 ease">
             ← Back to Dashboard
         </a>
     </div>
