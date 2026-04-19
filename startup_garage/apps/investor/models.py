@@ -145,3 +145,27 @@ class InvestorMeeting(models.Model):
         """Check if meeting is in the future"""
         from django.utils import timezone
         return self.meeting_date > timezone.now()
+
+
+class InvestorMessage(models.Model):
+    """Messages between founders and investors"""
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='sent_investor_messages'
+    )
+    investor = models.ForeignKey(
+        Investor,
+        on_delete=models.CASCADE,
+        related_name='received_messages'
+    )
+    subject = models.CharField(max_length=255, blank=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(db_default=False)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Message to {self.investor.user.get_full_name()} from {self.sender.get_full_name()}"

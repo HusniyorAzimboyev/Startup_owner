@@ -9,8 +9,9 @@ from django.utils import timezone
 from django.db import IntegrityError
 from datetime import timedelta
 import logging
-from .models import Investor, Investment, PitchDeck, InvestorMeeting
+from .models import Investor, Investment, PitchDeck, InvestorMeeting, InvestorMessage
 from .forms import InvestorMeetingForm, PitchDeckForm
+from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
@@ -126,3 +127,62 @@ class PitchDeckUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         obj, created = PitchDeck.objects.get_or_create(user=self.request.user)
         return obj
+
+
+@login_required
+def investor_chat(request, investor_id):
+    """Open chat interface with an investor"""
+    investor = get_object_or_404(
+        Investor.objects.select_related('user'),
+        pk=investor_id,
+        verified=True
+    )
+    
+    # Get all messages in this conversation
+    messages = InvestorMessage.objects.filter(
+        sender=request.user,
+        investor=investor
+    ).select_related('sender', 'investor__user').order_by('created_at')
+    
+    # Mark messages as read
+    InvestorMessage.objects.filter(
+        sender=investor.user,
+        investor=investor,
+        is_read=False
+    ).update(is_read=True)
+    
+    context = {
+        'investor': investor,
+        'messages': messages,
+    }
+    return render(request, 'investor/investor_chat.html', context)
+
+
+@login_required
+def send_investor_message(request, investor_id):
+    """Send a message to an investor"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        investor = get_object_or_404(Investor, pk=investor_id, verified=True)
+        message_text = request.POST.get('message', '').strip()
+        
+        if not message_text:
+            return JsonResponse({'error': 'Message cannot be empty'}, status=400)
+        
+        # Create message
+        message = InvestorMessage.objects.create(
+            sender=request.user,
+            investor=investor,
+            message=message_text
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message_id': message.id,
+            'timestamp': message.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        })
+    except Exception as e:
+        logger.exception(f'Error sending message to investor {investor_id}: {e}')
+        return JsonResponse({'error': 'Failed to send message'}, status=500)

@@ -6,6 +6,10 @@ app_name = 'mentor'
 urlpatterns = [
     path('', views.mentor_list, name='list'),
     path('<int:pk>/', views.mentor_detail, name='detail'),
+    path('<int:mentor_id>/sessions/', views.mentor_sessions, name='sessions'),
+    
+    # My Booked Sessions
+    path('my-sessions/', views.my_booked_sessions, name='my-sessions'),
     
     # Session Planner
     path('sessions/planner/', views.session_planner, name='session-planner'),

@@ -15,7 +15,7 @@
             {% endif %}
         </div>
         <a href="{% url 'dashboard:profile_update' %}" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-            Edit Profile
+            Edit StartUp
         </a>
     </div>
 
@@ -109,7 +109,7 @@
             {% for session in upcoming_sessions|slice:":1" %}
             <div class="flex items-center gap-4 text-sm">
                 <div>
-                    <p class="text-gray-300">{{ session.mentor.user.get_full_name }}</p>
+                    <p class="text-gray-300">With: {{ session.mentor.user.get_full_name }}</p>
                     <p class="text-green-300 text-xs">{{ session.scheduled_at|date:"M d, H:i" }}</p>
                 </div>
                 <div class="text-center">
@@ -119,7 +119,7 @@
             </div>
             {% endfor %}
             
-            <a href="{% url 'mentor:list' %}" class="ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition">
+            <a href="{% url 'mentor:my-sessions' %}" class="ml-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition">
                 View All
             </a>
         </div>

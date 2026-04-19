@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Investor, Investment, PitchDeck, InvestorMeeting
+from .models import Investor, Investment, PitchDeck, InvestorMeeting, InvestorMessage
 
 
 @admin.register(Investor)
@@ -64,3 +64,27 @@ class InvestorMeetingAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(InvestorMessage)
+class InvestorMessageAdmin(admin.ModelAdmin):
+    list_display = ('sender', 'investor', 'message_preview', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('sender__username', 'investor__user__username', 'message')
+    readonly_fields = ('created_at',)
+    fieldsets = (
+        ('Conversation', {
+            'fields': ('sender', 'investor')
+        }),
+        ('Message', {
+            'fields': ('subject', 'message')
+        }),
+        ('Status', {
+            'fields': ('is_read', 'created_at')
+        }),
+    )
+    
+    def message_preview(self, obj):
+        """Show first 50 characters of message in list view"""
+        return obj.message[:50] + '...' if len(obj.message) > 50 else obj.message
+    message_preview.short_description = 'Message'

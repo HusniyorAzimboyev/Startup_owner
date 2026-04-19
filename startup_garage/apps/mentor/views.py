@@ -144,10 +144,84 @@ def mentor_detail(request, pk):
         Mentor.objects.select_related('user'),
         pk=pk
     )
+    
+    # Get upcoming sessions for this mentor
+    upcoming_sessions = MentorSession.objects.filter(
+        mentor=mentor,
+        status='scheduled',
+        scheduled_at__gte=datetime.now()
+    ).select_related('mentee').order_by('scheduled_at')[:5]  # Get next 5 sessions
+    
     context = {
         'mentor': mentor,
+        'upcoming_sessions': upcoming_sessions,
+        'upcoming_count': upcoming_sessions.count(),
     }
     return render(request, 'mentor/mentor_detail.html', context)
+
+
+@login_required
+def mentor_sessions(request, mentor_id):
+    """View all sessions for a specific mentor, organized by session date"""
+    mentor = get_object_or_404(
+        Mentor.objects.select_related('user'),
+        pk=mentor_id
+    )
+    
+    # Get all sessions for this mentor, ordered by scheduled date
+    sessions = MentorSession.objects.filter(
+        mentor=mentor
+    ).select_related('mentee').order_by('-scheduled_at')
+    
+    # Organize sessions by status for better presentation
+    upcoming_sessions = sessions.filter(
+        status='scheduled',
+        scheduled_at__gte=datetime.now()
+    )
+    past_sessions = sessions.filter(
+        status='completed'
+    ).order_by('-scheduled_at')
+    cancelled_sessions = sessions.filter(
+        status='cancelled'
+    ).order_by('-scheduled_at')
+    
+    context = {
+        'mentor': mentor,
+        'upcoming_sessions': upcoming_sessions,
+        'past_sessions': past_sessions,
+        'cancelled_sessions': cancelled_sessions,
+        'total_sessions': sessions.count(),
+    }
+    return render(request, 'mentor/mentor_sessions.html', context)
+
+
+@login_required
+def my_booked_sessions(request):
+    """View all sessions the user has booked with mentors"""
+    # Get all sessions where user is the mentee, organized by status
+    sessions = MentorSession.objects.filter(
+        mentee=request.user
+    ).select_related('mentor', 'mentor__user').order_by('-scheduled_at')
+    
+    # Organize sessions by status for better presentation
+    upcoming_sessions = sessions.filter(
+        status='scheduled',
+        scheduled_at__gte=datetime.now()
+    )
+    past_sessions = sessions.filter(
+        status='completed'
+    ).order_by('-scheduled_at')
+    cancelled_sessions = sessions.filter(
+        status='cancelled'
+    ).order_by('-scheduled_at')
+    
+    context = {
+        'upcoming_sessions': upcoming_sessions,
+        'past_sessions': past_sessions,
+        'cancelled_sessions': cancelled_sessions,
+        'total_sessions': sessions.count(),
+    }
+    return render(request, 'mentor/my_booked_sessions.html', context)
 
 
 class FeedbackListView(LoginRequiredMixin, ListView):

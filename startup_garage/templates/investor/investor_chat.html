@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ investor.user.get_full_name }} - Startup Garage{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto h-screen flex flex-col">
+    <!-- Header -->
+    <div class="bg-gray-900 border-b border-gray-800 p-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'investor:list' %}" class="text-blue-400 hover:text-blue-300 transition">
+                ←
+            </a>
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-bold text-lg">{{ investor.user.username|upper|first }}</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-white">{{ investor.user.get_full_name|default:investor.user.username }}</h1>
+                <p class="text-gray-400 text-sm">Investor</p>
+            </div>
+        </div>
+        <a href="{% url 'investor:detail' investor.pk %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm">
+            View Profile
+        </a>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="flex-1 overflow-y-auto bg-gray-950 p-6 space-y-4" id="messagesContainer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flex {% if message.sender.id == user.id %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="{% if message.sender.id == user.id %}bg-blue-600{% else %}bg-gray-800{% endif %} rounded-lg p-4 max-w-sm">
+                        <p class="text-white">{{ message.message }}</p>
+                        <p class="text-xs {% if message.sender.id == user.id %}text-blue-100{% else %}text-gray-400{% endif %} mt-2">
+                            {{ message.created_at|date:"M d, H:i" }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <p class="text-gray-500 text-lg">Start a conversation</p>
+                    <p class="text-gray-600 text-sm mt-2">Say hello and introduce your startup!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Message Input -->
+    <div class="bg-gray-900 border-t border-gray-800 p-6">
+        <form id="messageForm" class="flex gap-3">
+            {% csrf_token %}
+            <input 
+                type="text" 
+                id="messageInput"
+                name="message"
+                placeholder="What can I help you with today..."
+                class="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                autocomplete="off"
+            >
+            <button 
+                type="submit"
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium"
+            >
+                Send
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const investorId = {{ investor.pk }};
+
+    messageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const messageText = messageInput.value.trim();
+        
+        if (!messageText) return;
+
+        try {
+            const response = await fetch(`/investor/${investorId}/send-message/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: `message=${encodeURIComponent(messageText)}`
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Add message to UI
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-blue-600 rounded-lg p-4 max-w-sm">
+                        <p class="text-white">${messageText}</p>
+                        <p class="text-xs text-blue-100 mt-2">${new Date().toLocaleString('en-US', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</p>
+                    </div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                alert('Failed to send message');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error sending message');
+        }
+    });
+
+    // Scroll to bottom on load
+    window.addEventListener('load', () => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+</script>
+{% endblock %}

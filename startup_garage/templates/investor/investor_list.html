@@ -86,9 +86,9 @@
                             View Profile
                         </a>
                         {% if investor.verified %}
-                            <button class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition">
+                            <a href="{% url 'investor:chat' investor.pk %}" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition text-center">
                                 Reach Out
-                            </button>
+                            </a>
                         {% endif %}
                     </div>
                 </div>

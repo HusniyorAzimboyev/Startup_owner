@@ -87,6 +87,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ).order_by('-priority', 'due_date')[:3]
 
         # Get upcoming booked mentor sessions (next 30 days)
+        # Show only sessions that THIS user booked (where they are the mentee)
         upcoming_sessions = MentorSession.objects.filter(
             mentee=user,
             scheduled_at__gte=timezone.now(),

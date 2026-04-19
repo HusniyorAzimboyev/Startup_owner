@@ -11,6 +11,10 @@ urlpatterns = [
     path('list/', views.investor_list, name='list'),
     path('<int:pk>/', views.investor_detail, name='detail'),
     
+    # Investor Messaging
+    path('<int:investor_id>/chat/', views.investor_chat, name='chat'),
+    path('<int:investor_id>/send-message/', views.send_investor_message, name='send-message'),
+    
     # Meetings
     path('meeting/create/', views.MeetingCreateView.as_view(), name='meeting-create'),
     path('meeting/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name='meeting-update'),
