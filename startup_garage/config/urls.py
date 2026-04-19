@@ -37,6 +37,7 @@ urlpatterns = [
     path('mentor/', include('apps.mentor.urls')),
     path('investor/', include('apps.investor.urls')),
     path('progress/', include('apps.progress.urls')),
+    path('ai/', include('apps.ai.urls')),
 ]
 
 # Serve media and static files during development

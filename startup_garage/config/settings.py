@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.mentor',
     'apps.investor',
     'apps.progress',
+    'apps.ai',
 ]
 
 MIDDLEWARE = [
