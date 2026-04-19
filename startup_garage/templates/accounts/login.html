@@ -29,10 +29,14 @@
                         Username
                     </label>
                     {{ form.username }}
+                    <style>
+                        #{{ form.username.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.username.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.username.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.username.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -42,15 +46,19 @@
                         Password
                     </label>
                     {{ form.password }}
+                    <style>
+                        #{{ form.password.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.password.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.password.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.password.errors.0 }}</div>
                     {% endif %}
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-150 ease">
                     Sign In
                 </button>
             </form>

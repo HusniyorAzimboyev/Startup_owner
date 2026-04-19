@@ -29,10 +29,14 @@
                         Username
                     </label>
                     {{ form.username }}
+                    <style>
+                        #{{ form.username.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.username.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.username.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.username.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -42,10 +46,14 @@
                         Email
                     </label>
                     {{ form.email }}
+                    <style>
+                        #{{ form.email.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.email.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.email.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.email.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -55,10 +63,14 @@
                         Startup Name (Optional)
                     </label>
                     {{ form.startup_name }}
+                    <style>
+                        #{{ form.startup_name.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.startup_name.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.startup_name.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.startup_name.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -68,10 +80,14 @@
                         Password
                     </label>
                     {{ form.password1 }}
+                    <style>
+                        #{{ form.password1.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.password1.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.password1.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.password1.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -81,15 +97,19 @@
                         Confirm Password
                     </label>
                     {{ form.password2 }}
+                    <style>
+                        #{{ form.password2.id_for_label }} {
+                            color: #000000 !important;
+                            background-color: #ffffff !important;
+                        }
+                    </style>
                     {% if form.password2.errors %}
-                        <p class="mt-2 text-sm text-red-400">
-                            {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                        </p>
+                        <div class="field-error">{{ form.password2.errors.0 }}</div>
                     {% endif %}
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-150 ease">
                     Create Account
                 </button>
             </form>
