@@ -182,15 +182,15 @@
         e.dataTransfer.dropEffect = 'move';
         
         // Add visual highlight to container
-        this.classList.add('drag-over');
+        e.currentTarget.classList.add('drag-over');
         return false;
     }
 
     // Handle drag leave
     function handleDragLeave(e) {
         // Only remove highlight if dragging is leaving the container itself
-        if (e.target === this) {
-            this.classList.remove('drag-over');
+        if (e.target === e.currentTarget) {
+            e.currentTarget.classList.remove('drag-over');
         }
     }
 
@@ -201,17 +201,22 @@
         }
 
         // Remove highlight
-        this.classList.remove('drag-over');
+        e.currentTarget.classList.remove('drag-over');
 
         const taskElement = document.querySelector('[draggable="true"].dragging');
         if (!taskElement) return false;
 
         const taskId = taskElement.getAttribute('data-task-id');
-        const newStatus = this.getAttribute('data-status');
+        const newStatus = e.currentTarget.getAttribute('data-status');
         const oldContainer = taskElement.parentElement;
 
-        // Move element to new container
-        this.insertBefore(taskElement, this.querySelector('p'));
+        // Move element to new container (before any empty state message)
+        const emptyMessage = e.currentTarget.querySelector('p');
+        if (emptyMessage && emptyMessage.parentElement === e.currentTarget) {
+            e.currentTarget.insertBefore(taskElement, emptyMessage);
+        } else {
+            e.currentTarget.appendChild(taskElement);
+        }
 
         // Build move URL from data attribute (replacing template variable)
         const boardElement = document.querySelector('[data-task-move-url]');
@@ -255,6 +260,16 @@
             const badge = container.parentElement.querySelector('span');
             if (badge) {
                 badge.textContent = taskCount;
+            }
+            
+            // Update empty state visibility
+            const emptyMessage = container.querySelector('p');
+            if (emptyMessage) {
+                if (taskCount === 0) {
+                    emptyMessage.style.display = 'block';
+                } else {
+                    emptyMessage.style.display = 'none';
+                }
             }
         });
     }
