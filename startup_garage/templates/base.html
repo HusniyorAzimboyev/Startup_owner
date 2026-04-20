@@ -1,10 +1,112 @@
-{% load static %}<!DOCTYPE html>
-<html lang="en">
+{% load static %}{% load i18n %}<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Startup Garage{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Theme initialization - run before body renders to prevent flash
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.add('dark-theme');
+            }
+        })();
+    </script>
+    <style>
+        /* Dark Theme (default) */
+        html.dark-theme {
+            --bg-primary: #030712;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --hover-bg: #1f2937;
+        }
+
+        /* Light Theme */
+        html.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #1f2937;
+            --text-secondary: #374151;
+            --border-color: #d1d5db;
+            --hover-bg: #e5e7eb;
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+        }
+
+        body {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+        }
+
+        nav, footer {
+            background-color: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* Background colors */
+        [class*="bg-gray-"] {
+            background-color: var(--bg-secondary) !important;
+        }
+        .bg-gray-950, .bg-gray-900, .bg-gray-800 {
+            background-color: var(--bg-secondary) !important;
+        }
+        .bg-gray-700 {
+            background-color: var(--bg-tertiary) !important;
+        }
+        .bg-gray-600 {
+            background-color: var(--hover-bg) !important;
+        }
+
+        /* Text colors */
+        [class*="text-gray-"] {
+            color: var(--text-secondary) !important;
+        }
+        .text-gray-100, .text-gray-200, .text-gray-300, .text-gray-400, .text-gray-500 {
+            color: var(--text-secondary) !important;
+        }
+        .text-gray-900, .text-gray-950 {
+            color: var(--text-primary) !important;
+        }
+
+        /* Border colors */
+        [class*="border-gray-"] {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Hover states */
+        .hover\:bg-gray-700:hover {
+            background-color: var(--hover-bg) !important;
+        }
+        .hover\:text-white:hover {
+            color: var(--text-primary) !important;
+        }
+
+        /* Ring and shadow adjustments */
+        .ring-gray-700 {
+            --tw-ring-color: var(--border-color) !important;
+        }
+
+        /* Input and form elements */
+        input, textarea, select {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-secondary) !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-950 text-gray-100">
     <!-- Navigation -->
@@ -17,24 +119,69 @@
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <!-- Theme Selector -->
+                    <button id="themeToggle" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition flex items-center gap-2" title="Toggle Theme">
+                        <svg id="sunIcon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <path d="M12 18a6 6 0 100-12 6 6 0 000 12zM12 2v4m0 12v4M2 12h4m12 0h4M4.22 4.22l2.83 2.83m5.9 5.9l2.83 2.83M4.22 19.78l2.83-2.83m5.9-5.9l2.83-2.83"/>
+                        </svg>
+                        <svg id="moonIcon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                        <span id="themeLabel">Light</span>
+                    </button>
+
+                    <!-- Language Selector -->
+                    <div class="relative group">
+                        <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10m-5 10l-5-10m11-4h2.5a2.5 2.5 0 0 0 0-5h-2.5"></path>
+                            </svg>
+                            <span>
+                                {% if request.LANGUAGE_CODE == 'en' %}EN
+                                {% elif request.LANGUAGE_CODE == 'ru' %}RU
+                                {% elif request.LANGUAGE_CODE == 'uz' %}UZ
+                                {% else %}EN{% endif %}
+                            </span>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 mt-2 w-40 bg-gray-800 border border-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <form method="post" action="{% url 'set_language' %}" class="block">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" name="language" value="en" class="w-full text-left px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white first:rounded-t-lg">
+                                    <span class="font-medium">English</span>
+                                    <span class="text-xs text-gray-500"> (EN)</span>
+                                </button>
+                                <button type="submit" name="language" value="ru" class="w-full text-left px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white">
+                                    <span class="font-medium">Русский</span>
+                                    <span class="text-xs text-gray-500"> (RU)</span>
+                                </button>
+                                <button type="submit" name="language" value="uz" class="w-full text-left px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white last:rounded-b-lg">
+                                    <span class="font-medium">O'zbekcha</span>
+                                    <span class="text-xs text-gray-500"> (UZ)</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
                     {% if user.is_authenticated %}
-                        <span class="text-gray-400">{{ user.username }}</span>
                         <a href="{% url 'accounts:profile' %}" class="text-gray-300 hover:text-white transition">
-                            Profile
+                            {% trans "Profile" %}
                         </a>
                         <!-- Logout Form (POST required for Django 6.x) -->
                         <form method="post" action="{% url 'accounts:logout' %}" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-gray-300 hover:text-white transition bg-none border-none cursor-pointer">
-                                Logout
+                                {% trans "Logout" %}
                             </button>
                         </form>
                     {% else %}
                         <a href="{% url 'accounts:login' %}" class="text-gray-300 hover:text-white transition">
-                            Login
+                            {% trans "Login" %}
                         </a>
                         <a href="{% url 'accounts:register' %}" class="text-gray-300 hover:text-white transition">
-                            Register
+                            {% trans "Register" %}
                         </a>
                     {% endif %}
                 </div>
@@ -77,6 +224,46 @@
 
     <!-- Extra JavaScript Block -->
     {% block extra_js %}{% endblock %}
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const themeLabel = document.getElementById('themeLabel');
+        const html = document.documentElement;
+
+        function updateThemeUI() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            if (currentTheme === 'light') {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+                themeLabel.textContent = 'Dark';
+            } else {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+                themeLabel.textContent = 'Light';
+            }
+        }
+
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // Update localStorage
+            localStorage.setItem('theme', newTheme);
+            
+            // Update DOM
+            html.classList.remove(currentTheme + '-theme');
+            html.classList.add(newTheme + '-theme');
+            
+            // Update UI
+            updateThemeUI();
+        });
+
+        // Initialize UI on page load
+        updateThemeUI();
+    </script>
 </body>
 </html>
 

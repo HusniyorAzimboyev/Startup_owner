@@ -1,0 +1,225 @@
+# Uzbek translations for Startup Garage
+# Copyright (C) 2026
+# This file is distributed under the same license as the Startup Garage package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Startup Garage 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-20 00:00+0000\n"
+"PO-Revision-Date: 2026-04-20 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Uzbek\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ============ NAVIGATION ============
+msgid "Dashboard"
+msgstr "Bosh panel"
+
+msgid "Tasks"
+msgstr "Vazifalar"
+
+msgid "Mentors"
+msgstr "Mentorlar"
+
+msgid "Investors"
+msgstr "Investorlar"
+
+msgid "Progress"
+msgstr "Taraqqiyot"
+
+msgid "Settings"
+msgstr "Sozlamalar"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Logout"
+msgstr "Chiqish"
+
+#: ============ DASHBOARD ============
+msgid "Welcome"
+msgstr "Xush kelibsiz"
+
+msgid "Edit StartUp"
+msgstr "Startapni tahrirlash"
+
+msgid "Startup Stage"
+msgstr "Startup bosqichi"
+
+msgid "Idea"
+msgstr "Fikra"
+
+msgid "MVP"
+msgstr "MVP"
+
+msgid "Growth"
+msgstr "O'sish"
+
+msgid "Active Mentors"
+msgstr "Faol mentorlar"
+
+msgid "Upcoming Meetings"
+msgstr "Kelasi uchrashuvlar"
+
+msgid "Key Metrics"
+msgstr "Asosiy ko'rsatkichlar"
+
+msgid "Recent Activity"
+msgstr "So'nggi faoliyat"
+
+#: ============ PROGRESS ============
+msgid "Progress Overview"
+msgstr "Taraqqiyot ko'rinishi"
+
+msgid "Track your daily productivity and achievements"
+msgstr "Kunlik samaradorlik va yutuqlaringizni kuzatib boring"
+
+msgid "Current Streak"
+msgstr "Hozirgi seriya"
+
+msgid "days"
+msgstr "kunlar"
+
+msgid "day"
+msgstr "kun"
+
+msgid "All-Time Tasks"
+msgstr "Barcha vazifalar"
+
+msgid "tasks completed"
+msgstr "vazifalar tugallandi"
+
+msgid "This Week"
+msgstr "Bu hafta"
+
+msgid "average score"
+msgstr "o'rtacha baholash"
+
+msgid "Today's Activity"
+msgstr "Bugungi faoliyat"
+
+msgid "Tasks Completed"
+msgstr "Tugallangan vazifalar"
+
+msgid "Total Tasks"
+msgstr "Umumiy vazifalar"
+
+msgid "Completion Rate"
+msgstr "Bajarilish darajasi"
+
+msgid "Performance Insight Chart"
+msgstr "Samaradorlik diagrammasi"
+
+msgid "Real-time completion rate trends (Last 7 days)"
+msgstr "Real vaqt rejimi bajarilish darajasi tendensiyalari (oxirgi 7 kun)"
+
+msgid "Activity Log"
+msgstr "Faoliyat jurnali"
+
+msgid "No progress recorded yet. Start completing tasks to see your progress!"
+msgstr "Taraqqiyot hali qayd etilmagan. Taraqqiyotingizni ko'rish uchun vazifalarni bajarishni boshlang!"
+
+#: ============ TASKS ============
+msgid "Task Board"
+msgstr "Vazifa taxtasi"
+
+msgid "Add Task"
+msgstr "Vazifa qo'shish"
+
+msgid "Delete"
+msgstr "O'chirish"
+
+msgid "Edit"
+msgstr "Tahrirlash"
+
+msgid "Mark Complete"
+msgstr "Tugallandi deb belgilash"
+
+#: ============ ACCOUNTS ============
+msgid "Login"
+msgstr "Kirish"
+
+msgid "Register"
+msgstr "Ro'yxatdan o'tish"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Parol"
+
+msgid "Sign In"
+msgstr "Kirish"
+
+msgid "Create Account"
+msgstr "Akkaunt yaratish"
+
+msgid "Startup Garage"
+msgstr "Startup Garaj"
+
+msgid "Home"
+msgstr "Bosh sahifa"
+
+#: ============ DASHBOARD KPI ============
+msgid "Active Users"
+msgstr "Faol foydalanuvchilar"
+
+msgid "Revenue"
+msgstr "Daromad"
+
+msgid "Milestones"
+msgstr "O'tmalar"
+
+msgid "to Growth"
+msgstr "O'sishga"
+
+msgid "Upcoming Sessions"
+msgstr "Kelasi seansar"
+
+msgid "booked"
+msgstr "band qilindi"
+
+msgid "With:"
+msgstr "Bilan:"
+
+msgid "remaining"
+msgstr "qolgan"
+
+msgid "View All"
+msgstr "Hammasini ko'rish"
+
+#: ============ MENTORS CTA ============
+msgid "Connect with Expert Mentors"
+msgstr "Tajribali mentorlar bilan bog'lanish"
+
+msgid "Schedule 1-on-1 sessions during working hours"
+msgstr "Ish vaqtida 1-ga-1 seansar rejalashtirish"
+
+msgid "Available Mentors"
+msgstr "Mavjud mentorlar"
+
+msgid "Real-time Availability"
+msgstr "Real vaqt mavjudligi"
+
+msgid "Book Instantly"
+msgstr "Darhol band qilish"
+
+msgid "Get Actionable Feedback"
+msgstr "Amaliy fikr-mulohaza olish"
+
+msgid "Next Step:"
+msgstr "Keyingi qadam:"
+
+msgid "Find the right mentor and book your first session now"
+msgstr "To'g'ri mentorni toping va birinchi seansingizni band qiling"
+
+msgid "Book Session Now"
+msgstr "Seanasni hozir band qilish"
+
+msgid "Daily Focus"
+msgstr "Kunlik e'tibor"
+

@@ -1,0 +1,225 @@
+# Russian translations for Startup Garage
+# Copyright (C) 2026
+# This file is distributed under the same license as the Startup Garage package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Startup Garage 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-20 00:00+0000\n"
+"PO-Revision-Date: 2026-04-20 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ============ NAVIGATION ============
+msgid "Dashboard"
+msgstr "Панель управления"
+
+msgid "Tasks"
+msgstr "Задачи"
+
+msgid "Mentors"
+msgstr "Наставники"
+
+msgid "Investors"
+msgstr "Инвесторы"
+
+msgid "Progress"
+msgstr "Прогресс"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Profile"
+msgstr "Профиль"
+
+msgid "Logout"
+msgstr "Выход"
+
+#: ============ DASHBOARD ============
+msgid "Welcome"
+msgstr "Добро пожаловать"
+
+msgid "Edit StartUp"
+msgstr "Редактировать стартап"
+
+msgid "Startup Stage"
+msgstr "Этап стартапа"
+
+msgid "Idea"
+msgstr "Идея"
+
+msgid "MVP"
+msgstr "МВП"
+
+msgid "Growth"
+msgstr "Рост"
+
+msgid "Active Mentors"
+msgstr "Активные наставники"
+
+msgid "Upcoming Meetings"
+msgstr "Предстоящие встречи"
+
+msgid "Key Metrics"
+msgstr "Ключевые показатели"
+
+msgid "Recent Activity"
+msgstr "Недавняя активность"
+
+#: ============ PROGRESS ============
+msgid "Progress Overview"
+msgstr "Обзор прогресса"
+
+msgid "Track your daily productivity and achievements"
+msgstr "Отслеживайте вашу ежедневную производительность и достижения"
+
+msgid "Current Streak"
+msgstr "Текущая серия"
+
+msgid "days"
+msgstr "дней"
+
+msgid "day"
+msgstr "день"
+
+msgid "All-Time Tasks"
+msgstr "Всего задач"
+
+msgid "tasks completed"
+msgstr "задач выполнено"
+
+msgid "This Week"
+msgstr "На этой неделе"
+
+msgid "average score"
+msgstr "средний балл"
+
+msgid "Today's Activity"
+msgstr "Активность сегодня"
+
+msgid "Tasks Completed"
+msgstr "Выполненные задачи"
+
+msgid "Total Tasks"
+msgstr "Всего задач"
+
+msgid "Completion Rate"
+msgstr "Процент выполнения"
+
+msgid "Performance Insight Chart"
+msgstr "Диаграмма производительности"
+
+msgid "Real-time completion rate trends (Last 7 days)"
+msgstr "Тренды частоты выполнения в реальном времени (последние 7 дней)"
+
+msgid "Activity Log"
+msgstr "Журнал активности"
+
+msgid "No progress recorded yet. Start completing tasks to see your progress!"
+msgstr "Прогресс еще не записан. Начните выполнять задачи, чтобы увидеть свой прогресс!"
+
+#: ============ TASKS ============
+msgid "Task Board"
+msgstr "Доска задач"
+
+msgid "Add Task"
+msgstr "Добавить задачу"
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "Edit"
+msgstr "Редактировать"
+
+msgid "Mark Complete"
+msgstr "Отметить как выполненную"
+
+#: ============ ACCOUNTS ============
+msgid "Login"
+msgstr "Вход"
+
+msgid "Register"
+msgstr "Регистрация"
+
+msgid "Email"
+msgstr "Электронная почта"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Sign In"
+msgstr "Войти"
+
+msgid "Create Account"
+msgstr "Создать аккаунт"
+
+msgid "Startup Garage"
+msgstr "Стартап Гараж"
+
+msgid "Home"
+msgstr "Главная"
+
+#: ============ DASHBOARD KPI ============
+msgid "Active Users"
+msgstr "Активные пользователи"
+
+msgid "Revenue"
+msgstr "Доход"
+
+msgid "Milestones"
+msgstr "Вехи"
+
+msgid "to Growth"
+msgstr "к Росту"
+
+msgid "Upcoming Sessions"
+msgstr "Предстоящие сеансы"
+
+msgid "booked"
+msgstr "забронировано"
+
+msgid "With:"
+msgstr "С:"
+
+msgid "remaining"
+msgstr "осталось"
+
+msgid "View All"
+msgstr "Просмотреть все"
+
+#: ============ MENTORS CTA ============
+msgid "Connect with Expert Mentors"
+msgstr "Свяжитесь с опытными наставниками"
+
+msgid "Schedule 1-on-1 sessions during working hours"
+msgstr "Запланируйте индивидуальные сеансы во время рабочего времени"
+
+msgid "Available Mentors"
+msgstr "Доступные наставники"
+
+msgid "Real-time Availability"
+msgstr "Доступность в реальном времени"
+
+msgid "Book Instantly"
+msgstr "Забронировать сейчас"
+
+msgid "Get Actionable Feedback"
+msgstr "Получить практическую обратную связь"
+
+msgid "Next Step:"
+msgstr "Следующий шаг:"
+
+msgid "Find the right mentor and book your first session now"
+msgstr "Найдите подходящего наставника и забронируйте свой первый сеанс"
+
+msgid "Book Session Now"
+msgstr "Забронировать сеанс сейчас"
+
+msgid "Daily Focus"
+msgstr "Ежедневный фокус"
+

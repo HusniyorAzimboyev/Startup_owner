@@ -1,14 +1,15 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Progress Overview - Startup Garage{% endblock %}
+{% block title %}{% trans "Progress Overview" %} - Startup Garage{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 class="text-4xl font-bold text-white">📈 Progress Overview</h1>
-            <p class="text-gray-400 mt-2">Track your daily productivity and achievements</p>
+            <h1 class="text-4xl font-bold text-white">📈 {% trans "Progress Overview" %}</h1>
+            <p class="text-gray-400 mt-2">{% trans "Track your daily productivity and achievements" %}</p>
         </div>
     </div>
 
@@ -86,17 +87,17 @@
 
     <!-- Chart Section -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-8">
-        <h2 class="text-2xl font-bold text-white mb-2">📈 Performance Trading Chart</h2>
+        <h2 class="text-2xl font-bold text-white mb-2">📈 Performance Insight Chart</h2>
         <p class="text-gray-400 text-sm mb-6">Real-time completion rate trends (Last 7 days)</p>
         
-        <div class="relative">
+        <div class="relative w-full">
             <!-- Chart Grid Background -->
             <div class="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
                 <div class="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent"></div>
             </div>
             
-            <div class="relative bg-gray-800 p-6 rounded-lg border border-gray-700">
-                <canvas id="progressChart" height="100"></canvas>
+            <div class="relative bg-gray-800 p-6 rounded-lg border border-gray-700" style="height: 500px; width: 100%;">
+                <canvas id="progressChart"></canvas>
             </div>
         </div>
         
@@ -160,7 +161,7 @@
                             <!-- Progress Bar -->
                             <div class="mb-2">
                                 <div class="w-full bg-gray-700 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all"
+                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
                                          style="width: {{ entry.completion_rate }}%">
                                     </div>
                                 </div>
@@ -192,6 +193,7 @@
 <script>
     // Wait for DOM to be ready before initializing chart
     document.addEventListener('DOMContentLoaded', function() {
+        // @type {Array}
         const raw = {{ weekly_data|safe }};
         const chartElement = document.getElementById('progressChart');
         
@@ -252,7 +254,9 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    animations: false,
                     interaction: {
                         intersect: false,
                         mode: 'index'
